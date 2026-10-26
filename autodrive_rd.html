@@ -1,0 +1,2167 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-100">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AutoDrive RD | Vehículos, Información y Taller</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col min-h-screen">
+
+  <!-- TOP SECURITY & AUDIT BANNER -->
+  <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800 flex justify-between items-center z-30">
+    <div class="flex items-center space-x-3 overflow-x-auto">
+      <button onclick="openSslModal()" class="flex items-center text-emerald-400 font-semibold hover:underline">
+        <i data-lucide="shield-check" class="w-3.5 h-3.5 mr-1"></i> SSL/TLS TLS_AES_256_GCM (Verificado)
+      </button>
+      <span class="hidden sm:inline text-slate-600">|</span>
+      <span class="hidden sm:flex items-center text-blue-400">
+        <i data-lucide="building-2" class="w-3.5 h-3.5 mr-1"></i> DGII e-CF Certificado
+      </span>
+      <span class="hidden md:inline text-slate-600">|</span>
+      <span class="hidden md:inline text-slate-400">RNC: 1-32-45678-9</span>
+    </div>
+    
+    <!-- CURRENCY TOGGLE & QUICK ACCESS -->
+    <div class="flex items-center space-x-3">
+      <div class="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+        <button id="btn-curr-dop" onclick="setCurrency('DOP')" class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-600 text-white transition">DOP$</button>
+        <button id="btn-curr-usd" onclick="setCurrency('USD')" class="px-2 py-0.5 rounded text-[11px] font-bold text-slate-400 hover:text-white transition">USD$</button>
+      </div>
+
+      <span class="text-[11px] text-slate-400 hidden sm:inline">Prueba:</span>
+      <button onclick="quickLogin('client')" class="bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 border border-blue-500/30 px-2 py-0.5 rounded text-[11px] transition">
+        Cliente
+      </button>
+      <button onclick="quickLogin('admin')" class="bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded text-[11px] transition">
+        Admin
+      </button>
+    </div>
+  </div>
+
+  <!-- MAIN NAVIGATION HEADER -->
+  <header class="bg-white/90 backdrop-blur-md sticky top-0 z-20 border-b border-slate-200 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- LOGO -->
+      <a href="#" onclick="showPage('store')" class="flex items-center space-x-2.5">
+        <div class="bg-blue-600 text-white p-2 rounded-xl shadow-md shadow-blue-500/20">
+          <i data-lucide="car" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <span class="font-extrabold text-xl text-slate-900 tracking-tight">AutoDrive <span class="text-blue-600">RD</span></span>
+          <span class="block text-[9px] text-slate-400 font-medium tracking-widest uppercase">E-Commerce Automotriz</span>
+        </div>
+      </a>
+
+      <!-- NAVIGATION LINKS -->
+      <nav class="hidden md:flex items-center space-x-6 text-sm font-medium">
+        <button onclick="showPage('store')" id="nav-link-store" class="text-blue-600 font-semibold transition">Catálogo</button>
+        <button onclick="showPage('requirements')" id="nav-link-requirements" class="text-slate-600 hover:text-blue-600 transition flex items-center space-x-1">
+          <i data-lucide="info" class="w-4 h-4 text-emerald-500"></i>
+          <span>Info</span>
+        </button>
+        <button onclick="showPage('about')" id="nav-link-about" class="text-slate-600 hover:text-blue-600 transition">Quiénes Somos</button>
+        <button onclick="showPage('workshop')" id="nav-link-workshop" class="text-slate-600 hover:text-blue-600 transition flex items-center space-x-1">
+          <i data-lucide="wrench" class="w-4 h-4 text-blue-500"></i>
+          <span>Taller</span>
+        </button>
+        <button onclick="showPage('my-orders')" id="nav-link-orders" class="text-slate-600 hover:text-blue-600 transition">Mis Compras & e-CF</button>
+        <button onclick="showPage('admin')" id="nav-link-admin" class="hidden text-slate-600 hover:text-blue-600 transition flex items-center space-x-1">
+          <i data-lucide="layout-dashboard" class="w-4 h-4 text-amber-500"></i>
+          <span>Panel Admin</span>
+        </button>
+      </nav>
+
+      <!-- CART & USER ACTIONS -->
+      <div class="flex items-center space-x-3">
+        <!-- CART BUTTON -->
+        <button onclick="openCartModal()" class="relative bg-slate-100 hover:bg-slate-200 text-slate-700 p-2 rounded-xl transition">
+          <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+          <span id="cart-badge-count" class="absolute -top-1.5 -right-1.5 bg-blue-600 text-white text-[10px] font-extrabold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+        </button>
+
+        <div id="user-info-badge" class="hidden flex items-center space-x-2 bg-slate-100 px-3 py-1.5 rounded-full border border-slate-200">
+          <div class="w-6 h-6 rounded-full bg-blue-600 text-white text-xs flex items-center justify-center font-bold" id="user-avatar">C</div>
+          <span class="text-xs font-semibold text-slate-700" id="user-name">Cliente</span>
+          <span class="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded font-mono uppercase" id="user-role-badge">CLIENTE</span>
+        </div>
+
+        <button id="btn-login-modal" onclick="openAuthModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md shadow-blue-500/20 transition flex items-center space-x-1.5">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Iniciar Sesión</span>
+        </button>
+
+        <button id="btn-logout" onclick="logout()" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-600 p-2 rounded-xl text-xs font-semibold transition" title="Cerrar Sesión">
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- DYNAMIC VIEW CONTAINER -->
+  <main class="flex-1">
+
+    <!-- PAGE 1: PUBLIC VEHICLE STORE -->
+    <div id="page-store" class="space-y-8 pb-12">
+      
+      <!-- HERO BANNER & SEARCH -->
+      <div class="relative bg-slate-900 text-white pt-12 pb-20 px-4 sm:px-6 lg:px-8 overflow-hidden">
+        <div class="absolute inset-0 opacity-20 bg-[radial-gradient(#3b82f6_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="max-w-5xl mx-auto text-center relative z-10 space-y-4">
+          <span class="bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full text-xs font-semibold tracking-wide uppercase flex items-center justify-center w-max mx-auto space-x-1.5">
+            <i data-lucide="shield-check" class="w-3.5 h-3.5"></i>
+            <span>Plataforma E-Commerce Homologada DGII + SSL 256-Bit</span>
+          </span>
+          <h1 class="text-3xl sm:text-5xl font-extrabold tracking-tight">Compra e Importación de Vehículos en <span class="text-blue-500">República Dominicana</span></h1>
+          <p class="text-slate-400 text-sm sm:text-base max-w-2xl mx-auto">
+            Reserva online con carrito interactivo, pago por pasarela de tarjeta o transferencia verificada, y factura e-CF digital de la DGII.
+          </p>
+
+          <!-- SEARCH BOX -->
+          <div class="bg-white rounded-2xl shadow-xl p-4 text-slate-800 max-w-4xl mx-auto mt-6 border border-slate-100">
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
+              <div>
+                <label class="block text-left text-[11px] font-bold text-slate-500 uppercase mb-1">Buscar</label>
+                <input type="text" id="search-keyword" oninput="renderStoreVehicles()" placeholder="Marca, Modelo o VIN..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              </div>
+              <div>
+                <label class="block text-left text-[11px] font-bold text-slate-500 uppercase mb-1">Condición</label>
+                <select id="filter-store-condition" onchange="renderStoreVehicles()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                  <option value="ALL">Todas las condiciones</option>
+                  <option value="Nuevo">Nuevo (0 KM)</option>
+                  <option value="Usado">Usado Certified</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-left text-[11px] font-bold text-slate-500 uppercase mb-1">Combustible</label>
+                <select id="filter-store-fuel" onchange="renderStoreVehicles()" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white">
+                  <option value="ALL">Todos los combustibles</option>
+                  <option value="Gasolina">Gasolina</option>
+                  <option value="Diésel">Diésel</option>
+                  <option value="Híbrido">Híbrido</option>
+                  <option value="Eléctrico">Eléctrico</option>
+                </select>
+              </div>
+              <div class="flex items-end">
+                <button onclick="resetStoreFilters()" class="w-full bg-slate-100 hover:bg-slate-200 text-slate-700 py-2 rounded-xl text-xs font-semibold transition flex items-center justify-center space-x-1">
+                  <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i>
+                  <span>Limpiar Filtros</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CATALOG GRID CONTAINER -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center mb-6">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800">Inventario Disponible</h2>
+            <p class="text-xs text-slate-500">Vehículos inspeccionados listos para entrega inmediata y facturación e-CF</p>
+          </div>
+          <span id="vehicle-count-badge" class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-bold border border-blue-100">
+            0 Vehículos
+          </span>
+        </div>
+
+        <div id="store-vehicles-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Populated by JavaScript -->
+        </div>
+      </div>
+
+    </div>
+
+    <!-- PAGE 2: REQUIREMENTS COMPLIANCE AUDIT (THE 5 COMPONENTS) -->
+    <div id="page-requirements" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      
+      <div class="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 space-y-4 shadow-xl">
+        <div class="flex items-center space-x-2 text-emerald-400 font-mono text-xs font-bold">
+          <i data-lucide="check-circle" class="w-4 h-4"></i>
+          <span>INFORMACIÓN DE LA PLATAFORMA</span>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-extrabold">Información y requisitos de AutoDrive RD</h2>
+        <p class="text-slate-400 text-xs sm:text-sm max-w-3xl">
+          Aquí encontrarás información sobre cómo está planteada la plataforma, sus herramientas, los requisitos técnicos y los componentes de compra y seguridad. Las funciones de pagos, hosting y facturación mostradas son demostrativas hasta que se conecten los servicios reales.
+        </p>
+      </div>
+
+      <!-- 5 CARDS AUDIT GRID -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- COMPONENT 1 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center font-bold">1</div>
+          <h3 class="font-bold text-slate-900 text-base">Herramienta de Diseño Web</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Desarrollado mediante <strong>HTML5 Semántico, Tailwind CSS y JavaScript Moderno (ES6)</strong> con arquitectura Single Page Application (SPA), garantizando diseño responsive, experiencia intuitiva y accesibilidad multi-dispositivo.
+          </p>
+          <span class="inline-block bg-blue-50 text-blue-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-blue-100">Frontend Reactivo & Componentizado</span>
+        </div>
+
+        <!-- COMPONENT 2 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-indigo-100 text-indigo-600 rounded-xl flex items-center justify-center font-bold">2</div>
+          <h3 class="font-bold text-slate-900 text-base">Host Web (Infraestructura)</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Alojamiento optimizado con despliegue de alta disponibilidad en nube CDN de borde (Edge Network), balanceo de carga automático y tiempo de respuesta inferior a 100ms a nivel nacional e internacional.
+          </p>
+          <span class="inline-block bg-indigo-50 text-indigo-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-indigo-100">Cloud Host & CDN Activo</span>
+        </div>
+
+        <!-- COMPONENT 3 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-xl flex items-center justify-center font-bold">3</div>
+          <h3 class="font-bold text-slate-900 text-base">Solución de Pago & e-CF DGII</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Pasarela de pagos multi-método integrada (Tarjetas PCI-DSS, Transferencias Directas) vinculada directamente con el emisor de <strong>Comprobantes Fiscales Electrónicos (e-CF)</strong> de la DGII.
+          </p>
+          <span class="inline-block bg-emerald-50 text-emerald-700 text-[10px] font-bold px-2.5 py-1 rounded-full border border-emerald-100">PCI-DSS + DGII API v1.2</span>
+        </div>
+
+        <!-- COMPONENT 4 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3">
+          <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center font-bold">4</div>
+          <h3 class="font-bold text-slate-900 text-base">Carrito de Compras / Reserva</h3>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Motor de reserva dinámica en tiempo real que bloquea el chasis/VIN seleccionado, gestiona impuestos ITBIS (18%), convierte divisas (DOP/USD) e interactúa dinámicamente con la sesión del usuario.
+          </p>
+          <button onclick="openCartModal()" class="text-xs font-bold text-amber-700 bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200 hover:bg-amber-100 transition flex items-center space-x-1">
+            <i data-lucide="shopping-bag" class="w-3.5 h-3.5"></i>
+            <span>Probar Carrito Interactivo</span>
+          </button>
+        </div>
+
+        <!-- COMPONENT 5 -->
+        <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm space-y-3 md:col-span-2 lg:col-span-2">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center font-bold">5</div>
+            <div>
+              <h3 class="font-bold text-slate-900 text-base">Certificado SSL / TLS Fiable (Capa de Sockets Seguros)</h3>
+              <span class="text-[10px] text-purple-600 font-bold uppercase tracking-wider">Seguridad Crítica Antifraude</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Implementación de cifrado simétrico de 256 bits mediante TLS 1.3 con protocolo HTTPS estricto. Previene el robo de identidades, la interceptación Man-in-the-Middle y garantiza la máxima confianza en el consumidor para evitar el abandono del carrito.
+          </p>
+          <div class="pt-2 flex items-center space-x-3">
+            <button onclick="openSslModal()" class="bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition flex items-center space-x-1.5">
+              <i data-lucide="shield-check" class="w-4 h-4"></i>
+              <span>Ver Certificado SSL / Auditoría en Vivo</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- PAGE: ABOUT US -->
+    <section id="page-about" class="hidden">
+      <div class="bg-slate-900 text-white px-4 py-14 sm:py-20">
+        <div class="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center">
+          <div class="space-y-5">
+            <span class="text-blue-300 text-xs font-bold uppercase tracking-[.2em]">Quiénes somos</span>
+            <h2 class="text-3xl sm:text-5xl font-extrabold tracking-tight">Tu próximo vehículo, con más confianza y claridad.</h2>
+            <p class="text-slate-300 leading-relaxed">AutoDrive RD es una propuesta de plataforma automotriz para explorar vehículos, conocer sus características y gestionar solicitudes de compra, importación y servicio desde un solo lugar.</p>
+            <button onclick="showPage('store')" class="bg-blue-600 hover:bg-blue-700 px-5 py-3 rounded-xl font-bold text-sm">Explorar catálogo</button>
+          </div>
+          <div class="rounded-3xl bg-white/5 border border-white/10 p-8 space-y-5">
+            <div class="flex gap-4"><div class="bg-blue-500/20 text-blue-300 p-3 rounded-xl h-fit"><i data-lucide="target" class="w-6 h-6"></i></div><div><h3 class="font-bold text-lg">Nuestra misión</h3><p class="text-sm text-slate-300 mt-1">Hacer más sencilla la búsqueda y gestión de vehículos mediante información clara y una experiencia digital accesible.</p></div></div>
+            <div class="flex gap-4"><div class="bg-emerald-500/20 text-emerald-300 p-3 rounded-xl h-fit"><i data-lucide="handshake" class="w-6 h-6"></i></div><div><h3 class="font-bold text-lg">Nuestro compromiso</h3><p class="text-sm text-slate-300 mt-1">Comunicación transparente, atención al cliente y seguimiento de las solicitudes de compra y mantenimiento.</p></div></div>
+            <div class="text-xs text-slate-400 border-t border-white/10 pt-4">Contenido institucional editable: sustituye esta descripción por la historia, el equipo y los datos comerciales verificados de tu empresa.</div>
+          </div>
+        </div>
+      </div>
+      <div class="max-w-5xl mx-auto px-4 py-10 grid sm:grid-cols-3 gap-4">
+        <div class="bg-white border border-slate-200 rounded-2xl p-5"><i data-lucide="car-front" class="w-6 h-6 text-blue-600 mb-3"></i><h3 class="font-bold">Vehículos</h3><p class="text-sm text-slate-500 mt-2">Consulta opciones y detalles antes de tomar una decisión.</p></div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5"><i data-lucide="clipboard-check" class="w-6 h-6 text-blue-600 mb-3"></i><h3 class="font-bold">Acompañamiento</h3><p class="text-sm text-slate-500 mt-2">Solicita orientación sobre compra o importación.</p></div>
+        <div class="bg-white border border-slate-200 rounded-2xl p-5"><i data-lucide="wrench" class="w-6 h-6 text-blue-600 mb-3"></i><h3 class="font-bold">Servicio de taller</h3><p class="text-sm text-slate-500 mt-2">Agenda mantenimiento y solicitudes de revisión.</p><button onclick="showPage('workshop')" class="text-blue-600 font-bold text-sm mt-3">Agendar cita →</button></div>
+      </div>
+    </section>
+
+    <!-- PAGE: WORKSHOP / APPOINTMENTS -->
+    <section id="page-workshop" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+      <div class="bg-slate-900 text-white rounded-3xl p-7 sm:p-10 relative overflow-hidden">
+        <div class="absolute -right-8 -top-8 opacity-10"><i data-lucide="wrench" class="w-56 h-56"></i></div>
+        <div class="relative max-w-3xl"><span class="text-blue-300 text-xs font-bold uppercase tracking-[.2em]">AutoDrive RD · Servicio técnico</span><h2 class="text-3xl sm:text-4xl font-extrabold mt-3">Taller y mantenimiento</h2><p class="text-slate-300 mt-3 max-w-2xl">Solicita una cita para mantenimiento preventivo, diagnóstico o reparación. Completa tus datos y selecciona la fecha que prefieres.</p></div>
+      </div>
+      <div class="grid lg:grid-cols-[1.2fr_.8fr] gap-6 items-start">
+        <form id="workshop-form" onsubmit="submitWorkshopAppointment(event)" class="bg-white border border-slate-200 rounded-2xl p-6 sm:p-8 shadow-sm space-y-5">
+          <div><h3 class="text-xl font-bold">Agendar una cita</h3><p class="text-sm text-slate-500 mt-1">Los campos marcados con * son obligatorios.</p></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div><label for="workshop-name" class="block text-sm font-semibold mb-1.5">Nombre completo *</label><input id="workshop-name" required autocomplete="name" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tu nombre"></div>
+            <div><label for="workshop-phone" class="block text-sm font-semibold mb-1.5">Teléfono / WhatsApp *</label><input id="workshop-phone" required type="tel" autocomplete="tel" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="809-000-0000"></div>
+            <div><label for="workshop-email" class="block text-sm font-semibold mb-1.5">Correo electrónico</label><input id="workshop-email" type="email" autocomplete="email" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="correo@ejemplo.com"></div>
+            <div><label for="workshop-vehicle" class="block text-sm font-semibold mb-1.5">Vehículo *</label><input id="workshop-vehicle" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Marca, modelo y año"></div>
+            <div><label for="workshop-service" class="block text-sm font-semibold mb-1.5">Tipo de servicio *</label><select id="workshop-service" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Selecciona un servicio</option><option>Mantenimiento preventivo</option><option>Cambio de aceite y filtros</option><option>Frenos</option><option>Diagnóstico mecánico</option><option>Diagnóstico eléctrico</option><option>Neumáticos y alineación</option><option>Aire acondicionado</option><option>Reparación general</option><option>Otro</option></select></div>
+            <div><label for="workshop-date" class="block text-sm font-semibold mb-1.5">Fecha preferida *</label><input id="workshop-date" type="date" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"></div>
+            <div><label for="workshop-time" class="block text-sm font-semibold mb-1.5">Horario preferido *</label><select id="workshop-time" required class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"><option value="">Selecciona un horario</option><option>8:00 a. m. – 10:00 a. m.</option><option>10:00 a. m. – 12:00 p. m.</option><option>1:00 p. m. – 3:00 p. m.</option><option>3:00 p. m. – 5:00 p. m.</option></select></div>
+            <div><label for="workshop-mileage" class="block text-sm font-semibold mb-1.5">Kilometraje aproximado</label><input id="workshop-mileage" type="number" min="0" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ej. 65000"></div>
+            <div class="sm:col-span-2"><label for="workshop-notes" class="block text-sm font-semibold mb-1.5">Describe el problema o servicio solicitado</label><textarea id="workshop-notes" rows="4" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Cuéntanos los síntomas, ruidos o detalles que debamos conocer..."></textarea></div>
+          </div>
+          <label class="flex items-start gap-2 text-xs text-slate-500"><input id="workshop-consent" type="checkbox" required class="mt-0.5"><span>Autorizo que AutoDrive RD utilice estos datos para contactarme sobre esta solicitud de cita.</span></label>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm flex justify-center items-center gap-2"><i data-lucide="calendar-check" class="w-4 h-4"></i> Solicitar cita</button>
+          <p class="text-xs text-slate-400">La solicitud no confirma disponibilidad automáticamente. El taller deberá contactarte para confirmar la fecha y hora.</p>
+        </form>
+        <aside class="space-y-4">
+          <div class="bg-white border border-slate-200 rounded-2xl p-6"><div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center mb-4"><i data-lucide="settings" class="w-5 h-5"></i></div><h3 class="font-bold text-lg">Servicios disponibles</h3><ul class="mt-4 space-y-3 text-sm text-slate-600"><li class="flex gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>Mantenimiento preventivo</li><li class="flex gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>Aceite, filtros y frenos</li><li class="flex gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>Diagnóstico mecánico y eléctrico</li><li class="flex gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-500 shrink-0"></i>Aire acondicionado y neumáticos</li></ul></div>
+          <div class="bg-blue-50 border border-blue-100 rounded-2xl p-6"><i data-lucide="info" class="w-5 h-5 text-blue-600 mb-3"></i><h3 class="font-bold">¿Qué sucede después?</h3><p class="text-sm text-slate-600 mt-2">Guardaremos la solicitud en este navegador y mostraremos un resumen. Para recibir solicitudes en varios dispositivos o notificar al equipo del taller, será necesario conectar un backend o servicio de mensajería.</p></div>
+          <div id="workshop-confirmation" class="hidden bg-emerald-50 border border-emerald-200 rounded-2xl p-5" role="status" aria-live="polite"></div>
+          <div class="bg-white border border-slate-200 rounded-2xl p-6"><h3 class="font-bold">Mis solicitudes en este dispositivo</h3><div id="workshop-appointments-list" class="mt-3 space-y-3 text-sm text-slate-600"><p class="text-slate-400 text-xs">Aún no hay solicitudes guardadas.</p></div></div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- USER REGISTRATION PAGE -->
+    <section id="page-register" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+      <div class="grid lg:grid-cols-[.9fr_1.1fr] gap-8 items-stretch">
+        <aside class="bg-slate-900 text-white rounded-3xl p-7 sm:p-10 flex flex-col justify-between overflow-hidden relative">
+          <div class="absolute -right-10 -bottom-10 opacity-10"><i data-lucide="car-front" class="w-64 h-64"></i></div>
+          <div class="relative">
+            <span class="inline-flex items-center gap-2 text-blue-300 text-xs font-bold uppercase tracking-[.2em]"><i data-lucide="user-round-plus" class="w-4 h-4"></i> AutoDrive RD</span>
+            <h1 class="text-3xl sm:text-4xl font-extrabold mt-5">Crea tu cuenta</h1>
+            <p class="text-slate-300 mt-4 leading-relaxed">Regístrate para guardar tus datos y consultar tus compras y solicitudes desde esta plataforma.</p>
+          </div>
+          <div class="relative mt-10 space-y-3 text-sm text-slate-300">
+            <p class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Seguimiento de tus compras</p>
+            <p class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Información de contacto en un solo lugar</p>
+            <p class="flex items-center gap-2"><i data-lucide="check" class="w-4 h-4 text-emerald-400"></i> Acceso a servicios y novedades</p>
+          </div>
+        </aside>
+        <form id="register-form" onsubmit="handleRegisterSubmit(event)" class="bg-white border border-slate-200 rounded-3xl p-6 sm:p-9 shadow-sm space-y-5">
+          <div><h2 class="text-xl font-bold text-slate-900">Datos de registro</h2><p class="text-sm text-slate-500 mt-1">Completa tus datos para crear tu perfil de cliente.</p></div>
+          <div class="grid sm:grid-cols-2 gap-4">
+            <div class="sm:col-span-2"><label for="register-name" class="block text-sm font-semibold mb-1.5">Nombre completo *</label><input id="register-name" required autocomplete="name" minlength="2" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Tu nombre y apellido"></div>
+            <div><label for="register-cedula" class="block text-sm font-semibold mb-1.5">Cédula o RNC</label><input id="register-cedula" autocomplete="off" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="000-0000000-0"></div>
+            <div><label for="register-phone" class="block text-sm font-semibold mb-1.5">Teléfono / WhatsApp *</label><input id="register-phone" required type="tel" autocomplete="tel" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="809-000-0000"></div>
+            <div class="sm:col-span-2"><label for="register-email" class="block text-sm font-semibold mb-1.5">Correo electrónico *</label><input id="register-email" required type="email" autocomplete="email" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="correo@ejemplo.com"></div>
+            <div><label for="register-password" class="block text-sm font-semibold mb-1.5">Contraseña *</label><input id="register-password" required type="password" autocomplete="new-password" minlength="8" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Mínimo 8 caracteres"></div>
+            <div><label for="register-password-confirm" class="block text-sm font-semibold mb-1.5">Confirmar contrase?a *</label><input id="register-password-confirm" required type="password" autocomplete="new-password" minlength="8" class="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Repite tu contrase?a"></div>
+          </div>
+          <label class="flex items-start gap-2 text-xs text-slate-500"><input id="register-consent" type="checkbox" required class="mt-0.5"><span>Acepto que AutoDrive RD utilice mis datos para gestionar mi cuenta y contactarme sobre mis solicitudes.</span></label>
+          <div id="register-message" class="hidden rounded-xl p-3 text-sm" role="status" aria-live="polite"></div>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-bold text-sm flex justify-center items-center gap-2"><i data-lucide="user-round-plus" class="w-4 h-4"></i> Crear cuenta</button>
+          <p class="text-xs text-slate-400 text-center">¿Ya tienes una cuenta? <button type="button" onclick="openAuthModal()" class="text-blue-600 font-bold hover:underline">Inicia sesión</button></p>
+          <p class="text-[11px] text-amber-700 bg-amber-50 border border-amber-100 rounded-xl p-3">Registro de demostración: los perfiles se guardan únicamente en este navegador. Para cuentas seguras se necesita conectar un servidor.</p>
+        </form>
+      </div>
+    </section>
+
+    <!-- PAGE 3: CLIENT MY ORDERS & e-CF -->
+    <div id="page-my-orders" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
+          <div>
+            <h2 class="text-xl font-bold text-slate-800">Mis Compras & Comprobantes DGII</h2>
+            <p class="text-xs text-slate-500">Consulta el estado de tus compras y descarga tus facturas e-CF</p>
+          </div>
+          <span class="bg-blue-50 text-blue-700 px-3 py-1 rounded-full text-xs font-semibold">Cliente Autenticado</span>
+        </div>
+
+        <div id="orders-list-container" class="space-y-4">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PAGE 4: ADMIN DASHBOARD -->
+    <div id="page-admin" class="hidden max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      
+      <!-- Admin Header -->
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center bg-slate-900 text-white p-6 rounded-2xl shadow-lg gap-4">
+        <div>
+          <div class="flex items-center space-x-2">
+            <span class="bg-amber-500 text-slate-900 font-extrabold text-[10px] px-2 py-0.5 rounded">ADMINISTRADOR</span>
+            <span class="text-xs text-slate-400">RNC: 1-32-45678-9</span>
+          </div>
+          <h2 class="text-xl font-bold mt-1">Panel de Control & Gestión e-CF DGII</h2>
+        </div>
+        <button onclick="openVehicleModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-xl text-xs font-semibold shadow-md flex items-center space-x-1.5 transition">
+          <i data-lucide="plus-circle" class="w-4 h-4"></i>
+          <span>Agregar Vehículo al Inventario</span>
+        </button>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="flex border-b border-slate-200 space-x-6 text-sm font-semibold">
+        <button onclick="switchAdminTab('inventory')" id="tab-btn-inventory" class="pb-3 border-b-2 border-blue-600 text-blue-600">Gestión de Inventario (CRUD)</button>
+        <button onclick="switchAdminTab('vouchers')" id="tab-btn-vouchers" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5">
+          <span>Validar Transferencias</span>
+          <span id="admin-pending-badge" class="bg-amber-100 text-amber-800 text-[10px] px-2 py-0.5 rounded-full font-bold">0</span>
+        </button>
+        <button onclick="switchAdminTab('ecf')" id="tab-btn-ecf" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800">Histórico e-CF DGII</button>
+      </div>
+
+      <!-- TAB 1: INVENTORY CRUD TABLE -->
+      <div id="admin-tab-inventory" class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase">
+                <th class="py-3 px-4">Vehículo</th>
+                <th class="py-3 px-4">VIN / Chasis</th>
+                <th class="py-3 px-4">Precio (DOP)</th>
+                <th class="py-3 px-4">Estado</th>
+                <th class="py-3 px-4">e-CF DGII</th>
+                <th class="py-3 px-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="admin-inventory-table" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 2: VOUCHERS APPROVAL -->
+      <div id="admin-tab-vouchers" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <h3 class="font-bold text-slate-800 text-sm">Comprobantes de Pago Pendientes por Revisar</h3>
+        <div id="admin-vouchers-list" class="space-y-3">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+
+      <!-- TAB 3: e-CF AUDIT LOG -->
+      <div id="admin-tab-ecf" class="hidden bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase">
+                <th class="py-3 px-4">e-NCF</th>
+                <th class="py-3 px-4">Tipo e-CF</th>
+                <th class="py-3 px-4">RNC / Cédula Cliente</th>
+                <th class="py-3 px-4">Monto Total</th>
+                <th class="py-3 px-4">TrackID DGII</th>
+                <th class="py-3 px-4 text-right">Comprobante</th>
+              </tr>
+            </thead>
+            <tbody id="admin-ecf-table" class="divide-y divide-slate-100 text-slate-700">
+              <!-- Populated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- MODAL: SSL & SECURITY VERIFIER (COMPONENT 5) -->
+  <div id="modal-ssl" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden p-6 space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <div class="flex items-center space-x-2 text-emerald-600 font-bold">
+          <i data-lucide="shield-check" class="w-6 h-6"></i>
+          <span>Certificado SSL/TLS Activo</span>
+        </div>
+        <button onclick="closeSslModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs text-slate-600">
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 font-mono">
+          <p><strong>Emisor:</strong> AutoDrive RD Global CA Server</p>
+          <p><strong>Algoritmo:</strong> SHA-256 con cifrado RSA (2048 Bits)</p>
+          <p><strong>Cifrado de Sesión:</strong> TLS_AES_256_GCM_SHA384</p>
+          <p><strong>Estado HSTS:</strong> Preloaded Strict-Transport-Security</p>
+          <p><strong>Validez:</strong> Octubre 2026 - Octubre 2027 (Válido)</p>
+        </div>
+        <p class="text-slate-500">
+          Este certificado garantiza la cifrado punto a punto entre su navegador y nuestro host web, blindando la información financiera y evitando el fraude cibernético durante la compra.
+        </p>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="closeSslModal()" class="w-full bg-slate-900 text-white py-2 rounded-xl text-xs font-bold">
+          Entendido
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: INTERACTIVE SHOPPING CART (COMPONENT 4) -->
+  <div id="modal-cart" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden flex flex-col max-h-[85vh]">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shopping-cart" class="w-5 h-5 text-blue-400"></i>
+          <h3 class="font-bold text-sm">Carrito de Compras / Reserva</h3>
+        </div>
+        <button onclick="closeCartModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div id="cart-modal-items" class="p-4 overflow-y-auto space-y-3 text-xs flex-1">
+        <!-- Populated dynamically -->
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 space-y-3">
+        <div class="flex justify-between items-center text-sm font-bold text-slate-900">
+          <span>Subtotal Estimado:</span>
+          <span id="cart-total-amount" class="text-blue-600">DOP$ 0.00</span>
+        </div>
+        <button id="btn-cart-checkout" onclick="proceedCartToCheckout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl font-bold text-xs shadow-md shadow-blue-500/20 transition flex items-center justify-center space-x-1.5">
+          <i data-lucide="credit-card" class="w-4 h-4"></i>
+          <span>Proceder al Pago & e-CF</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: LOGIN / REGISTER -->
+  <div id="modal-auth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden p-6 space-y-6">
+      
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="font-bold text-slate-800 text-lg" id="auth-modal-title">Iniciar Sesión</h3>
+        <button onclick="closeAuthModal()" class="text-slate-400 hover:text-slate-600"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Correo Electrónico</label>
+          <input type="email" id="auth-email" required placeholder="correo@autodrive.do" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-slate-700 uppercase mb-1">Contraseña</label>
+          <input type="password" id="auth-password" required placeholder="••••••••" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 focus:outline-none">
+        </div>
+
+        <button type="submit" id="auth-btn-submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-xl text-xs font-bold shadow-md shadow-blue-500/20 transition">
+          Iniciar Sesión
+        </button>
+      </form>
+
+      <div class="text-center -mt-2"><button type="button" onclick="closeAuthModal(); showPage('register')" class="text-xs text-blue-600 font-bold hover:underline">¿No tienes cuenta? Regístrate</button></div>
+
+      <!-- PRESET LOGIN QUICK BUTTONS -->
+      <div class="border-t border-slate-100 pt-4 space-y-2">
+        <p class="text-[11px] text-slate-400 text-center font-medium">Acceso rápido de prueba:</p>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="quickLogin('client')" class="bg-slate-100 hover:bg-slate-200 text-slate-700 py-1.5 rounded-xl text-xs font-semibold">Cliente Demo</button>
+          <button onclick="quickLogin('admin')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 py-1.5 rounded-xl text-xs font-semibold">Admin Demo</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: VEHICLE DETAILS & BUY -->
+  <div id="modal-vehicle-detail" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-sm" id="detail-car-title">Detalles del Vehículo</h3>
+        <button onclick="closeVehicleDetailModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div class="p-6 overflow-y-auto space-y-6 flex-1 text-slate-700 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div>
+            <img id="detail-car-image" src="" class="w-full h-56 object-cover rounded-xl border border-slate-200" alt="Car">
+            <div id="detail-car-thumbnails" class="flex space-x-2 mt-3 overflow-x-auto pb-1"></div>
+          </div>
+          <div class="space-y-3">
+            <div>
+              <span id="detail-car-condition" class="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded-full">USADO</span>
+              <h2 id="detail-car-name" class="text-xl font-bold text-slate-900 mt-1">Toyota RAV4</h2>
+              <p id="detail-car-vin" class="text-slate-400 font-mono text-[11px]">VIN: 4T1B11HK8FU123456</p>
+            </div>
+
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <span class="text-slate-400 text-[10px] uppercase font-bold">Precio Final Contado</span>
+              <p id="detail-car-price" class="text-2xl font-extrabold text-blue-600">DOP$ 0</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-[11px]">
+              <div class="bg-slate-100 p-2 rounded-lg"><strong>Año:</strong> <span id="detail-car-year">2023</span></div>
+              <div class="bg-slate-100 p-2 rounded-lg"><strong>Kilometraje:</strong> <span id="detail-car-km">0 KM</span></div>
+              <div class="bg-slate-100 p-2 rounded-lg"><strong>Combustible:</strong> <span id="detail-car-fuel">Gasolina</span></div>
+              <div class="bg-slate-100 p-2 rounded-lg"><strong>Transmisión:</strong> <span id="detail-car-trans">Automática</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-100 pt-4 space-y-2">
+          <h4 class="font-bold text-slate-900">Garantía & Inspección Técnica</h4>
+          <p class="text-slate-500">Este vehículo incluye 150 puntos de inspección verificados, certificado de no colisión y garantía de motor y transmisión por 12 meses.</p>
+        </div>
+      </div>
+
+      <div class="p-4 bg-slate-50 border-t border-slate-200 flex justify-end space-x-3">
+        <button onclick="closeVehicleDetailModal()" class="px-4 py-2 border border-slate-200 rounded-xl font-semibold text-xs">Cerrar</button>
+        <button id="btn-add-to-cart" onclick="addToCartCurrentVehicle()" class="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl text-xs transition flex items-center space-x-1">
+          <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+          <span>Añadir al Carrito</span>
+        </button>
+        <button id="btn-proceed-checkout" onclick="openCheckoutModal()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs shadow-md shadow-blue-500/20">
+          Comprar Ahora
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CHECKOUT & PAYMENT METHOD (COMPONENT 3) -->
+  <div id="modal-checkout" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+          <i data-lucide="shield-check" class="w-5 h-5 text-emerald-400"></i>
+          <h3 class="font-bold text-sm">Checkout Seguro HTTPS SSL 256-Bit (Pasarela & DGII e-CF)</h3>
+        </div>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="checkout-form" onsubmit="processCheckout(event)" class="p-6 overflow-y-auto space-y-6 flex-1 text-xs">
+        <!-- Step 1: Buyer Info & DGII Fiscal Type -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] text-blue-600">1. Datos Fiscales para DGII</h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block font-semibold mb-1">Nombre Completo o Razón Social *</label>
+              <input type="text" id="checkout-name" required class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">RNC o Cédula de Identidad *</label>
+              <input type="text" id="checkout-rnc" required placeholder="001-0000000-0" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block font-semibold mb-1">Tipo de Comprobante Fiscal (e-CF) *</label>
+              <select id="checkout-ecf-type" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-blue-500 bg-white">
+                <option value="E32">E32 - Factura de Consumo (Consumidor Final)</option>
+                <option value="E31">E31 - Factura de Crédito Fiscal (Empresas con RNC)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Purchase or reservation -->
+        <div class="space-y-3"><h4 id="purchase-step-title" class="font-bold text-slate-900 uppercase tracking-wider text-[11px] text-blue-600">2. Tipo de operación</h4>
+          <div id="purchase-type-options" class="grid sm:grid-cols-2 gap-3">
+            <label class="border border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-slate-50 border-2 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/30"><input type="radio" name="purchaseType" value="PURCHASE" checked onchange="updatePurchaseOption()" class="sr-only"><span class="block font-bold text-slate-800">Compra completa</span><span class="block text-[10px] text-slate-500 mt-1">Paga el precio total del vehículo.</span></label>
+            <label class="border border-slate-200 rounded-xl p-4 cursor-pointer hover:bg-slate-50 border-2 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/30"><input type="radio" name="purchaseType" value="RESERVATION" onchange="updatePurchaseOption()" class="sr-only"><span class="block font-bold text-slate-800">Reservar vehículo</span><span class="block text-[10px] text-slate-500 mt-1">Abona el 10% y coordina el saldo con un representante.</span></label>
+          </div><div id="purchase-amount-summary" class="bg-blue-50 border border-blue-100 rounded-xl p-3 text-slate-700">Monto a pagar hoy: <strong>Calculando...</strong></div>
+        </div>
+        <!-- Step 3: Payment Method Choice -->
+        <div class="space-y-3">
+          <h4 class="font-bold text-slate-900 uppercase tracking-wider text-[11px] text-blue-600">3. Método de Pago Seguro</h4>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition border-2 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/30">
+              <input type="radio" name="paymentMethod" value="CARD" checked onchange="togglePaymentFields()" class="sr-only">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="credit-card" class="w-5 h-5 text-blue-600"></i>
+                <span class="font-bold text-slate-800">Tarjeta Crédito/Débito</span>
+              </div>
+              <span class="text-[10px] text-slate-400 mt-2">Procesamiento Inmediato (PCI-DSS)</span>
+            </label>
+
+            <label class="border border-slate-200 rounded-xl p-3 flex flex-col justify-between cursor-pointer hover:bg-slate-50 transition border-2 has-[:checked]:border-blue-600 has-[:checked]:bg-blue-50/30">
+              <input type="radio" name="paymentMethod" value="TRANSFER" onchange="togglePaymentFields()" class="sr-only">
+              <div class="flex items-center space-x-2">
+                <i data-lucide="arrow-left-right" class="w-5 h-5 text-amber-600"></i>
+                <span class="font-bold text-slate-800">Transferencia Bancaria</span>
+              </div>
+              <span class="text-[10px] text-slate-400 mt-2">Depósito / Voucher Manual</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Payment Details: Card Simulation -->
+        <div id="payment-card-box" class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="sm:col-span-2">
+              <label class="block font-semibold mb-1">Número de Tarjeta (Simulado PCI-DSS SSL)</label>
+              <input type="text" id="checkout-card-number" required inputmode="numeric" autocomplete="cc-number" maxlength="23" oninput="formatCardNumber(this)" placeholder="4242 4242 4242 4242 (prueba)" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+              <p class="text-[10px] text-slate-500">Acepta de 13 a 19 digitos y valida el checksum. Simulacion local: no se procesa ni almacena la tarjeta.</p>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Expiración</label>
+              <input type="text" placeholder="MM/YY" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">CVC / CVV</label>
+              <input type="password" placeholder="•••" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment Details: Manual Transfer Simulation -->
+        <div id="payment-transfer-box" class="hidden p-4 bg-amber-50/60 rounded-xl border border-amber-200 space-y-3">
+          <div class="text-[11px] text-amber-900 space-y-1">
+            <p class="font-bold">Cuentas Bancarias Autorizadas (AutoDrive RD, SRL):</p>
+            <ul class="list-disc list-inside text-[10px] space-y-0.5 text-slate-700">
+              <li><strong>Banco Popular (DOP):</strong> 892-10293-1</li>
+              <li><strong>Banco BHD (DOP):</strong> 102-49201-9</li>
+              <li><strong>Banreservas (USD):</strong> 200-01-920-19208</li>
+            </ul>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Número de Referencia / Voucher *</label>
+            <input type="text" id="checkout-voucher-ref" placeholder="Ej. TRF-902182093" class="w-full px-3 py-2 border border-amber-200 rounded-xl text-xs bg-white">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl text-xs shadow-md shadow-emerald-500/20 transition flex items-center justify-center space-x-2">
+            <i data-lucide="lock" class="w-4 h-4"></i>
+            <span>Confirmar Pago & Generar e-CF</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: AUTOMATED REPRESENTATIVE CHAT SIMULATION -->
+  <div id="modal-purchase-chat" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden"><div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="p-4 bg-slate-900 text-white flex items-center justify-between"><div class="flex items-center gap-2"><div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center"><i data-lucide="headset" class="w-5 h-5"></i></div><div><h3 class="font-bold text-sm">Representante AutoDrive RD</h3><p class="text-[10px] text-emerald-300">Chat automatizado de demostración</p></div></div><button type="button" onclick="closePurchaseChat()" class="text-slate-300 hover:text-white" aria-label="Cerrar chat"><i data-lucide="x" class="w-5 h-5"></i></button></div>
+    <div id="purchase-chat-messages" class="p-4 overflow-y-auto flex-1 min-h-48 max-h-80 space-y-3 bg-slate-50" aria-live="polite"></div>
+    <form onsubmit="sendPurchaseChatMessage(event)" class="p-3 border-t border-slate-200 flex gap-2"><input id="purchase-chat-input" class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Escribe una pregunta..." aria-label="Mensaje para el representante"><button class="bg-slate-800 hover:bg-slate-900 text-white px-3 rounded-xl" aria-label="Enviar mensaje"><i data-lucide="send" class="w-4 h-4"></i></button></form>
+    <div id="purchase-chat-actions" class="p-4 pt-0 grid sm:grid-cols-2 gap-2"><button type="button" onclick="requestPurchaseChatHelp()" class="border border-slate-200 hover:bg-slate-50 text-slate-700 py-2.5 rounded-xl text-xs font-bold">Solicitar ayuda</button><button type="button" onclick="confirmPurchaseWithRepresentative()" class="bg-emerald-600 hover:bg-emerald-700 text-white py-2.5 rounded-xl text-xs font-bold">Confirmar y validar</button></div><p class="px-4 pb-4 text-[10px] text-slate-400">Esta conversación es una simulación local; no contacta a un representante real.</p>
+  </div></div>
+
+  <!-- MODAL: ADD/EDIT VEHICLE (ADMIN) -->
+  <div id="modal-admin-car" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden max-h-[90vh] flex flex-col">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center">
+        <h3 class="font-bold text-sm" id="admin-modal-title">Agregar Vehículo</h3>
+        <button onclick="closeVehicleModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <form id="admin-car-form" onsubmit="saveAdminVehicle(event)" class="p-6 overflow-y-auto space-y-4 text-xs flex-1">
+        <input type="hidden" id="admin-car-id">
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Marca *</label>
+            <input type="text" id="admin-make" required placeholder="Toyota" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Modelo *</label>
+            <input type="text" id="admin-model" required placeholder="RAV4" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Año *</label>
+            <input type="number" id="admin-year" required value="2024" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Precio (DOP) *</label>
+            <input type="number" id="admin-price" required placeholder="1850000" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Kilometraje *</label>
+            <input type="number" id="admin-km" required placeholder="0" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">VIN / Chasis *</label>
+            <input type="text" id="admin-vin" required placeholder="4T1B1..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs uppercase">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label class="block font-semibold mb-1">Condición</label>
+            <select id="admin-condition" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+              <option value="Usado">Usado</option>
+              <option value="Nuevo">Nuevo (0 KM)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Combustible</label>
+            <select id="admin-fuel" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+              <option value="Gasolina">Gasolina</option>
+              <option value="Diésel">Diésel</option>
+              <option value="Híbrido">Híbrido</option>
+              <option value="Eléctrico">Eléctrico</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Estado Venta</label>
+            <select id="admin-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-white">
+              <option value="Disponible">Disponible</option>
+              <option value="Reservado">Reservado</option>
+              <option value="Vendido">Vendido</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="admin-seats" class="block font-semibold mb-1">Asientos totales (incluye conductor) *</label>
+            <input type="number" id="admin-seats" required min="1" max="20" value="5" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+          <div>
+            <label for="admin-passenger-capacity" class="block font-semibold mb-1">Capacidad de pasajeros (sin conductor) *</label>
+            <input type="number" id="admin-passenger-capacity" required min="0" max="19" value="4" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+          </div>
+        </div>
+
+        <div>
+          <label for="admin-features" class="block font-semibold mb-1">Equipamiento y caracteristicas</label>
+          <p class="text-[10px] text-slate-400 mb-1">Una caracteristica por linea. Si lo dejas vacio, la galeria indicara consultar al agente de ventas.</p>
+          <textarea id="admin-features" rows="4" placeholder="Bluetooth
+Apple CarPlay
+Android Auto
+Bocinas premium" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"></textarea>
+        </div>
+        <div>
+          <label for="admin-specifications" class="block font-semibold mb-1">Caracteristicas tecnicas adicionales</label>
+          <p class="text-[10px] text-slate-400 mb-1">Una por linea con el formato: Nombre: valor.</p>
+          <textarea id="admin-specifications" rows="3" placeholder="Motor: 2.0 L
+Traccion: AWD
+Pantalla: 10 pulgadas" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs"></textarea>
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">URL Foto Principal</label>
+          <input type="url" id="admin-image" placeholder="https://..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs">
+        </div>
+
+        <div>
+          <label class="block font-semibold mb-1">URLs Fotos Galería (Una URL por línea)</label>
+          <textarea id="admin-gallery-urls" rows="3" placeholder="https://...&#10;https://..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs font-mono"></textarea>
+        </div>
+
+        <div class="pt-2 flex justify-end space-x-2">
+          <button type="button" onclick="closeVehicleModal()" class="px-4 py-2 border rounded-xl">Cancelar</button>
+          <button type="submit" class="px-5 py-2 bg-blue-600 text-white rounded-xl font-bold">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: GALLERY VIEWER -->
+  <div id="modal-gallery" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden">
+    <div class="relative w-full max-w-6xl bg-slate-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col border border-slate-800">
+      <div class="p-4 bg-slate-900 text-white flex justify-between items-center border-b border-slate-800">
+        <div>
+          <h3 id="gallery-modal-car-title" class="font-bold text-sm">Galería de fotos</h3>
+          <p class="text-[10px] text-slate-400">Fotos del vehiculo y ficha de equipamiento</p>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span id="gallery-counter" class="text-xs font-mono bg-slate-800 text-slate-300 px-2.5 py-1 rounded-lg">1 / 4</span>
+          <button onclick="closeGalleryModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800 transition"><i data-lucide="x" class="w-5 h-5"></i></button>
+        </div>
+      </div>
+
+      <div class="flex flex-col lg:flex-row bg-slate-100">
+        <div class="relative w-full lg:w-2/3 h-[280px] sm:h-[400px] lg:h-[500px] bg-white flex items-center justify-center overflow-hidden p-3">
+          <img id="gallery-main-image" src="" class="w-full h-full object-contain rounded-xl transition-all duration-300" alt="Foto del vehiculo">
+          <button id="gallery-prev" onclick="changeGalleryImage(-1)" class="absolute left-5 bg-slate-900/80 hover:bg-slate-800 text-white p-2.5 rounded-full shadow-lg transition" aria-label="Foto anterior"><i data-lucide="chevron-left" class="w-5 h-5"></i></button>
+          <button id="gallery-next" onclick="changeGalleryImage(1)" class="absolute right-5 bg-slate-900/80 hover:bg-slate-800 text-white p-2.5 rounded-full shadow-lg transition" aria-label="Foto siguiente"><i data-lucide="chevron-right" class="w-5 h-5"></i></button>
+        </div>
+        <aside id="gallery-vehicle-info" class="w-full lg:w-1/3 max-h-[320px] lg:max-h-[500px] overflow-y-auto p-5 bg-white border-t lg:border-t-0 lg:border-l border-slate-200">
+          <p class="text-[10px] uppercase tracking-wider text-blue-600 font-bold">Informacion del vehiculo</p>
+          <section class="mt-3"><h4 class="font-bold text-slate-900 text-sm flex items-center gap-2"><i data-lucide="smartphone" class="w-4 h-4 text-blue-600"></i>Conectividad y audio</h4><ul id="gallery-vehicle-features" class="mt-2 space-y-2 text-xs text-slate-600"></ul></section>
+          <section class="mt-5"><h4 class="font-bold text-slate-900 text-sm flex items-center gap-2"><i data-lucide="list-checks" class="w-4 h-4 text-blue-600"></i>Caracteristicas</h4><dl id="gallery-vehicle-specs" class="mt-2 grid grid-cols-2 gap-2 text-[11px]"></dl></section>
+          <p class="mt-4 text-[10px] text-amber-700 bg-amber-50 border border-amber-100 p-2.5 rounded-lg">El equipamiento puede variar segun el mercado y la unidad. Confirma las caracteristicas con el representante antes de comprar.</p>
+        </aside>
+      </div>
+
+      <div class="p-4 bg-slate-900 border-t border-slate-800">
+        <div id="gallery-thumbnails" class="flex items-center justify-center space-x-2 overflow-x-auto py-1">
+          <!-- Populated dynamically -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: e-CF INVOICE PRINT VIEW -->
+  <div id="modal-ecf-view" class="fixed inset-0 bg-slate-900/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="bg-slate-900 text-white p-4 flex justify-between items-center">
+        <span class="font-bold text-xs">Comprobante Fiscal Electrónico (DGII e-CF)</span>
+        <button onclick="closeEcfViewModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+      </div>
+
+      <div id="ecf-print-body" class="p-6 overflow-y-auto font-mono text-xs text-slate-800 space-y-4">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <div class="p-4 bg-slate-100 border-t border-slate-200 flex justify-between items-center">
+        <span class="text-[10px] text-slate-500">Validador Oficial DGII RD</span>
+        <button onclick="window.print()" class="px-4 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Imprimir / Exportar PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform translate-y-10 opacity-0 transition-all pointer-events-none bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl text-xs font-semibold flex items-center space-x-2">
+    <i data-lucide="info" class="w-4 h-4 text-blue-400"></i>
+    <span id="toast-msg">Mensaje</span>
+  </div>
+
+  <!-- APPLICATION LOGIC (VANILLA JS) -->
+  <script>
+    // CURRENCY STATE & CONVERSION RATE (1 USD = 60 DOP)
+    const EXCHANGE_RATE_USD = 60.00;
+    let currentCurrency = 'DOP';
+
+    function setCurrency(curr) {
+      currentCurrency = curr;
+      const dopBtn = document.getElementById('btn-curr-dop');
+      const usdBtn = document.getElementById('btn-curr-usd');
+
+      if (curr === 'USD') {
+        usdBtn.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-blue-600 text-white transition";
+        dopBtn.className = "px-2 py-0.5 rounded text-[11px] font-bold text-slate-400 hover:text-white transition";
+      } else {
+        dopBtn.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-blue-600 text-white transition";
+        usdBtn.className = "px-2 py-0.5 rounded text-[11px] font-bold text-slate-400 hover:text-white transition";
+      }
+
+      updateUI();
+    }
+
+    function formatPrice(amountInDop) {
+      if (currentCurrency === 'USD') {
+        const usdValue = amountInDop / EXCHANGE_RATE_USD;
+        return `USD$ ${usdValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+      }
+      return `DOP$ ${amountInDop.toLocaleString('es-DO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    }
+
+    // INITIAL MOCK STATE
+    const INITIAL_CAR_DATA = [
+      {
+        id: 'AUT-101',
+        make: 'Toyota',
+        model: 'RAV4 Limited 4WD',
+        year: 2023,
+        price: 2150000,
+        condition: 'Usado',
+        km: 18500,
+        fuel: 'Gasolina',
+        trans: 'Automática',
+        vin: '4T1B11HK8FU982103',
+        status: 'Disponible',
+        image: 'images/toyota-rav4-2023.png',
+        gallery: [
+          'images/toyota-rav4-2023.png'
+        ],
+        ecfIssued: true,
+        encf: 'E310000000142',
+        trackId: 'TRK-DGII-99201-RD'
+      },
+      {
+        id: 'AUT-102',
+        make: 'Honda',
+        model: 'CR-V Touring',
+        year: 2024,
+        price: 2450000,
+        condition: 'Nuevo',
+        km: 0,
+        fuel: 'Gasolina',
+        trans: 'Automática',
+        vin: '5J6RW2H87ML012938',
+        status: 'Disponible',
+        image: 'images/honda-crv-2024-touring.jpg',
+        gallery: [
+          'images/honda-crv-2024-touring.jpg'
+        ],
+        ecfIssued: false,
+        encf: null,
+        trackId: null
+      },
+      {
+        id: 'AUT-103',
+        make: 'Hyundai',
+        model: 'Tucson Sport',
+        year: 2022,
+        price: 1680000,
+        condition: 'Usado',
+        km: 34000,
+        fuel: 'Gasolina',
+        trans: 'Automática',
+        vin: 'KM8J33A41NU582910',
+        status: 'Reservado',
+        image: 'images/hyundai-tucson-2022.webp',
+        gallery: [
+          'images/hyundai-tucson-2022.webp'
+        ],
+        ecfIssued: false,
+        encf: null,
+        trackId: null
+      }
+    ];
+
+    const INITIAL_USERS = [
+      { email: 'admin@autodrive.do', role: 'ADMIN', name: 'Administrador AutoDrive', rnc: '1-32-45678-9' },
+      { email: 'cliente@autodrive.do', role: 'CLIENT', name: 'Juan Pérez', rnc: '001-1234567-8' }
+    ];
+
+    const savedUsers = JSON.parse(localStorage.getItem('autodrive_users') || 'null');
+    if (Array.isArray(savedUsers)) INITIAL_USERS.splice(0, INITIAL_USERS.length, ...savedUsers);
+
+    let state = {
+      vehicles: JSON.parse(localStorage.getItem('autodrive_vehicles')) || INITIAL_CAR_DATA,
+      orders: JSON.parse(localStorage.getItem('autodrive_orders')) || [],
+      cart: JSON.parse(localStorage.getItem('autodrive_cart')) || [],
+      currentUser: JSON.parse(localStorage.getItem('autodrive_user')) || INITIAL_USERS[1],
+      selectedCarId: null
+    };
+
+    const DEFAULT_CAR_PHOTOS = {
+      'AUT-101': 'images/toyota-rav4-2023.png',
+      'AUT-102': 'images/honda-crv-2024-touring.jpg',
+      'AUT-103': 'images/hyundai-tucson-2022.webp'
+    };
+    const DEFAULT_VEHICLE_DETAILS = {
+      'AUT-101': {
+        features: ['Bluetooth para llamadas y audio', 'Apple CarPlay y Android Auto inalambricos', 'Audio JBL premium de 11 bocinas con subwoofer'],
+        specifications: [['Motor', '2.5 L, 4 cilindros'], ['Traccion', 'AWD / 4WD'], ['Seguridad', 'Toyota Safety Sense 2.5']]
+      },
+      'AUT-102': {
+        features: ['Bluetooth HandsFreeLink y audio', 'Apple CarPlay y Android Auto inalambricos', 'Sistema BOSE de 12 bocinas'],
+        specifications: [['Motor', '1.5 L turbo, 188 hp'], ['Traccion', 'Delantera'], ['Transmision', 'CVT'], ['Pantalla', 'Tactil de 9 pulgadas']]
+      },
+      'AUT-103': {
+        features: ['Bluetooth manos libres y audio', 'Apple CarPlay y Android Auto', 'Sistema de audio de 6 bocinas'],
+        specifications: [['Motor', '2.0 L, 4 cilindros'], ['Traccion', 'Delantera'], ['Transmision', 'Automatica']]
+      }
+    };
+    state.vehicles.forEach(vehicle => {
+      const photo = DEFAULT_CAR_PHOTOS[vehicle.id];
+      if (photo) { vehicle.image = photo; vehicle.gallery = [photo]; }
+      const details = DEFAULT_VEHICLE_DETAILS[vehicle.id];
+      if (details) {
+        if (!Array.isArray(vehicle.features)) vehicle.features = details.features;
+        if (!Array.isArray(vehicle.specifications)) vehicle.specifications = details.specifications;
+      }
+      if (!Number.isFinite(Number(vehicle.seats))) vehicle.seats = 5;
+      if (!Number.isFinite(Number(vehicle.passengerCapacity))) vehicle.passengerCapacity = Math.max(Number(vehicle.seats) - 1, 0);
+    });
+    localStorage.setItem('autodrive_vehicles', JSON.stringify(state.vehicles));
+
+    function saveAppState() {
+      localStorage.setItem('autodrive_vehicles', JSON.stringify(state.vehicles));
+      localStorage.setItem('autodrive_orders', JSON.stringify(state.orders));
+      localStorage.setItem('autodrive_cart', JSON.stringify(state.cart));
+      localStorage.setItem('autodrive_user', JSON.stringify(state.currentUser));
+      updateUI();
+    }
+
+    // ON LOAD
+    window.onload = function() {
+      lucide.createIcons();
+      updateUI();
+    };
+
+    // UI REFRESH
+    function updateUI() {
+      const userBadge = document.getElementById('user-info-badge');
+      const loginBtn = document.getElementById('btn-login-modal');
+      const logoutBtn = document.getElementById('btn-logout');
+      const adminNavBtn = document.getElementById('nav-link-admin');
+      const cartBadge = document.getElementById('cart-badge-count');
+
+      if (cartBadge) {
+        cartBadge.innerText = state.cart.length;
+      }
+
+      if (state.currentUser) {
+        userBadge.classList.remove('hidden');
+        loginBtn.classList.add('hidden');
+        logoutBtn.classList.remove('hidden');
+
+        document.getElementById('user-name').innerText = state.currentUser.name;
+        document.getElementById('user-avatar').innerText = state.currentUser.name.charAt(0);
+        document.getElementById('user-role-badge').innerText = state.currentUser.role;
+
+        if (state.currentUser.role === 'ADMIN') {
+          adminNavBtn.classList.remove('hidden');
+        } else {
+          adminNavBtn.classList.add('hidden');
+        }
+      } else {
+        userBadge.classList.add('hidden');
+        loginBtn.classList.remove('hidden');
+        logoutBtn.classList.add('hidden');
+        adminNavBtn.classList.add('hidden');
+      }
+
+      renderStoreVehicles();
+      renderOrders();
+      renderAdminTable();
+      renderAdminVouchers();
+      renderAdminEcf();
+      renderCartItems();
+      lucide.createIcons();
+    }
+
+    // PAGE SWITCHING
+    function showPage(pageId) {
+      document.getElementById('page-store').classList.add('hidden');
+      document.getElementById('page-requirements').classList.add('hidden');
+      document.getElementById('page-my-orders').classList.add('hidden');
+      document.getElementById('page-admin').classList.add('hidden');
+      document.getElementById('page-about').classList.add('hidden');
+      document.getElementById('page-workshop').classList.add('hidden');
+      document.getElementById('page-register').classList.add('hidden');
+
+      const targetPage = document.getElementById(`page-${pageId}`);
+      if (targetPage) targetPage.classList.remove('hidden');
+      if (pageId === 'workshop') renderWorkshopAppointments();
+      lucide.createIcons();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // SSL MODAL
+    function openSslModal() {
+      document.getElementById('modal-ssl').classList.remove('hidden');
+    }
+    function closeSslModal() {
+      document.getElementById('modal-ssl').classList.add('hidden');
+    }
+
+    // SHOPPING CART (COMPONENT 4)
+    function openCartModal() {
+      renderCartItems();
+      document.getElementById('modal-cart').classList.remove('hidden');
+    }
+    function closeCartModal() {
+      document.getElementById('modal-cart').classList.add('hidden');
+    }
+
+    function addToCart(carId) {
+      const car = state.vehicles.find(v => v.id === carId);
+      if (!car) return;
+      if (car.status !== 'Disponible') {
+        showToast('El vehículo no está disponible para añadir al carrito');
+        return;
+      }
+
+      const exists = state.cart.some(item => item.id === carId);
+      if (exists) {
+        showToast('Este vehículo ya está en tu carrito');
+        return;
+      }
+
+      state.cart.push(car);
+      saveAppState();
+      showToast(`${car.make} ${car.model} añadido al carrito`);
+    }
+
+    function addToCartCurrentVehicle() {
+      if (state.selectedCarId) {
+        addToCart(state.selectedCarId);
+        closeVehicleDetailModal();
+      }
+    }
+
+    function removeFromCart(carId) {
+      state.cart = state.cart.filter(item => item.id !== carId);
+      saveAppState();
+    }
+
+    function renderCartItems() {
+      const container = document.getElementById('cart-modal-items');
+      const totalEl = document.getElementById('cart-total-amount');
+      if (!container) return;
+
+      container.innerHTML = '';
+      let total = 0;
+
+      if (state.cart.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400">
+            <i data-lucide="shopping-cart" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            Tu carrito está vacío
+          </div>
+        `;
+        if (totalEl) totalEl.innerText = formatPrice(0);
+        return;
+      }
+
+      state.cart.forEach(item => {
+        total += item.price;
+        const row = document.createElement('div');
+        row.className = "flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200";
+        row.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <img src="${item.image}" class="w-12 h-10 object-cover rounded-lg">
+            <div>
+              <p class="font-bold text-slate-900">${item.make} ${item.model}</p>
+              <p class="text-[10px] text-slate-400">VIN: ${item.vin}</p>
+            </div>
+          </div>
+          <div class="flex items-center space-x-2">
+            <span class="font-bold text-blue-600">${formatPrice(item.price)}</span>
+            <button onclick="removeFromCart('${item.id}')" class="text-red-500 hover:text-red-700 p-1">
+              <i data-lucide="trash-2" class="w-4 h-4"></i>
+            </button>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+
+      if (totalEl) totalEl.innerText = formatPrice(total);
+      lucide.createIcons();
+    }
+
+    function proceedCartToCheckout() {
+      if (state.cart.length === 0) {
+        showToast('El carrito está vacío');
+        return;
+      }
+      closeCartModal();
+      // Select the first car in the cart for single checkout simulation
+      state.selectedCarId = state.cart[0].id;
+      openCheckoutModal();
+    }
+
+    // AUTH ACTIONS
+    function openAuthModal() {
+      document.getElementById('modal-auth').classList.remove('hidden');
+    }
+
+    function closeAuthModal() {
+      document.getElementById('modal-auth').classList.add('hidden');
+    }
+
+    function quickLogin(role) {
+      if (role === 'admin') {
+        state.currentUser = INITIAL_USERS[0];
+        showPage('admin');
+      } else {
+        state.currentUser = INITIAL_USERS[1];
+        showPage('store');
+      }
+      saveAppState();
+      closeAuthModal();
+      showToast(`Iniciaste sesión como ${state.currentUser.name}`);
+    }
+
+    function logout() {
+      state.currentUser = null;
+      saveAppState();
+      showPage('store');
+      showToast('Sesión cerrada');
+    }
+
+    function handleAuthSubmit(e) {
+      e.preventDefault();
+      const email = document.getElementById('auth-email').value;
+      if (email.includes('admin')) {
+        quickLogin('admin');
+      } else {
+        quickLogin('client');
+      }
+    }
+
+    function handleRegisterSubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('register-name').value.trim();
+      const email = document.getElementById('register-email').value.trim().toLowerCase();
+      const phone = document.getElementById('register-phone').value.trim();
+      const rnc = document.getElementById('register-cedula').value.trim();
+      const password = document.getElementById('register-password').value;
+      const confirmation = document.getElementById('register-password-confirm').value;
+      const message = document.getElementById('register-message');
+      message.className = 'rounded-xl p-3 text-sm';
+      if (password !== confirmation) {
+        message.classList.add('bg-red-50', 'text-red-700');
+        message.textContent = 'Las contrase?as no coinciden. Verifica e intenta de nuevo.';
+        return;
+      }
+      if (INITIAL_USERS.some(user => user.email.toLowerCase() === email)) {
+        message.classList.add('bg-red-50', 'text-red-700');
+        message.textContent = 'Ya existe una cuenta con ese correo. Inicia sesión para continuar.';
+        return;
+      }
+      const account = { email, role: 'CLIENT', name, phone, rnc };
+      INITIAL_USERS.push(account);
+      localStorage.setItem('autodrive_users', JSON.stringify(INITIAL_USERS));
+      state.currentUser = account;
+      saveAppState();
+      document.getElementById('register-form').reset();
+      showPage('store');
+      showToast(`Cuenta creada. ?Bienvenido/a, ${name}!`);
+    }
+
+    // PUBLIC STORE RENDERING
+    function renderStoreVehicles() {
+      const container = document.getElementById('store-vehicles-grid');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const keyword = document.getElementById('search-keyword').value.toLowerCase();
+      const condFilter = document.getElementById('filter-store-condition').value;
+      const fuelFilter = document.getElementById('filter-store-fuel').value;
+
+      const filtered = state.vehicles.filter(v => {
+        const matchesKey = v.make.toLowerCase().includes(keyword) || v.model.toLowerCase().includes(keyword) || v.vin.toLowerCase().includes(keyword);
+        const matchesCond = condFilter === 'ALL' || v.condition === condFilter;
+        const matchesFuel = fuelFilter === 'ALL' || v.fuel === fuelFilter;
+        return matchesKey && matchesCond && matchesFuel;
+      });
+
+      document.getElementById('vehicle-count-badge').innerText = `${filtered.length} Vehículos`;
+
+      filtered.forEach(v => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-2xl overflow-hidden border border-slate-200/80 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between";
+        
+        let statusTag = '';
+        if (v.status === 'Disponible') statusTag = `<span class="bg-emerald-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Disponible</span>`;
+        else if (v.status === 'Reservado') statusTag = `<span class="bg-amber-500 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Reservado</span>`;
+        else statusTag = `<span class="bg-purple-600 text-white text-[10px] font-extrabold px-2.5 py-1 rounded-full uppercase tracking-wider">Vendido</span>`;
+
+        card.innerHTML = `
+          <div>
+            <div class="relative h-48 overflow-hidden bg-slate-100 cursor-pointer group" onclick="openGalleryModal('${v.id}')">
+              <img src="${v.image}" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" alt="Car">
+              <div class="absolute top-3 left-3">${statusTag}</div>
+              <div class="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-bold px-2 py-1 rounded-lg">${v.condition}</div>
+              <div class="absolute bottom-3 right-3 bg-slate-900/80 text-white px-2 py-1 rounded-lg text-[10px] font-bold flex items-center space-x-1 backdrop-blur-md opacity-90 group-hover:opacity-100 transition">
+                <i data-lucide="images" class="w-3.5 h-3.5"></i>
+                <span>${(v.gallery && v.gallery.length) || 1} fotos</span>
+              </div>
+            </div>
+
+            <div class="p-5 space-y-3">
+              <div>
+                <span class="text-[11px] text-slate-400 font-bold uppercase tracking-wider">${v.make}</span>
+                <h3 class="font-bold text-slate-900 text-base leading-snug">${v.model} (${v.year})</h3>
+              </div>
+
+              <div class="flex items-center justify-between text-xs text-slate-500 border-y border-slate-100 py-2">
+                <span>${v.km.toLocaleString()} KM</span>
+                <span>•</span>
+                <span>${v.fuel}</span>
+                <span>•</span>
+                <span>${v.trans}</span>
+              </div>
+
+              <div class="pt-1">
+                <span class="text-[10px] text-slate-400 font-semibold block uppercase">Precio de Oferta</span>
+                <span class="text-xl font-extrabold text-blue-600">${formatPrice(v.price)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="px-5 pb-5 pt-0 space-y-2">
+            <div class="grid grid-cols-2 gap-2">
+              <button onclick="addToCart('${v.id}')" class="bg-amber-500 hover:bg-amber-600 text-white py-2 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1">
+                <i data-lucide="shopping-cart" class="w-3.5 h-3.5"></i>
+                <span>+ Carrito</span>
+              </button>
+              <button onclick="viewCarDetail('${v.id}')" class="bg-slate-900 hover:bg-blue-600 text-white py-2 rounded-xl font-bold text-xs transition flex items-center justify-center space-x-1 shadow-sm">
+                <i data-lucide="eye" class="w-3.5 h-3.5"></i>
+                <span>Ver Detalle</span>
+              </button>
+            </div>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+      lucide.createIcons();
+    }
+
+    function resetStoreFilters() {
+      document.getElementById('search-keyword').value = '';
+      document.getElementById('filter-store-condition').value = 'ALL';
+      document.getElementById('filter-store-fuel').value = 'ALL';
+      renderStoreVehicles();
+    }
+
+    // VEHICLE DETAIL
+    function viewCarDetail(id) {
+      const v = state.vehicles.find(item => item.id === id);
+      if (!v) return;
+
+      state.selectedCarId = id;
+      document.getElementById('detail-car-title').innerText = `${v.make} ${v.model}`;
+      document.getElementById('detail-car-name').innerText = `${v.make} ${v.model}`;
+      document.getElementById('detail-car-image').src = v.image;
+      document.getElementById('detail-car-condition').innerText = v.condition.toUpperCase();
+      document.getElementById('detail-car-vin').innerText = `VIN: ${v.vin}`;
+      document.getElementById('detail-car-price').innerText = formatPrice(v.price);
+      document.getElementById('detail-car-year').innerText = v.year;
+      document.getElementById('detail-car-km').innerText = `${v.km.toLocaleString()} KM`;
+      document.getElementById('detail-car-fuel').innerText = v.fuel;
+      document.getElementById('detail-car-trans').innerText = v.trans;
+
+      const detailThumbs = document.getElementById('detail-car-thumbnails');
+      if (detailThumbs) {
+        detailThumbs.innerHTML = '';
+        const photos = (v.gallery && v.gallery.length > 0) ? v.gallery : [v.image];
+        photos.forEach((photoUrl, idx) => {
+          const thumb = document.createElement('img');
+          thumb.src = photoUrl;
+          thumb.className = `w-14 h-10 object-cover rounded-lg border-2 cursor-pointer transition ${idx === 0 ? 'border-blue-600' : 'border-transparent opacity-70 hover:opacity-100'}`;
+          thumb.onclick = () => {
+            document.getElementById('detail-car-image').src = photoUrl;
+            Array.from(detailThumbs.children).forEach(c => c.classList.replace('border-blue-600', 'border-transparent'));
+            thumb.classList.replace('border-transparent', 'border-blue-600');
+          };
+          detailThumbs.appendChild(thumb);
+        });
+      }
+
+      const buyBtn = document.getElementById('btn-proceed-checkout');
+      if (v.status !== 'Disponible') {
+        buyBtn.disabled = true;
+        buyBtn.innerText = 'Vehículo No Disponible';
+        buyBtn.classList.add('opacity-50', 'cursor-not-allowed');
+      } else {
+        buyBtn.disabled = false;
+        buyBtn.innerText = 'Comprar Ahora';
+        buyBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+      }
+
+      document.getElementById('modal-vehicle-detail').classList.remove('hidden');
+    }
+
+    function closeVehicleDetailModal() {
+      document.getElementById('modal-vehicle-detail').classList.add('hidden');
+    }
+
+    // CHECKOUT LOGIC
+    let pendingBalanceOrderId = null;
+
+    function openCheckoutModal(balanceOrderId = null) {
+      if (!state.currentUser) {
+        closeVehicleDetailModal();
+        openAuthModal();
+        showToast('Inicia sesion para continuar con la compra');
+        return;
+      }
+      pendingBalanceOrderId = balanceOrderId;
+      closeVehicleDetailModal();
+      document.getElementById('checkout-name').value = state.currentUser.name || '';
+      document.getElementById('checkout-rnc').value = state.currentUser.rnc || '';
+      document.getElementById('purchase-type-options').classList.toggle('hidden', Boolean(balanceOrderId));
+      document.getElementById('purchase-step-title').innerText = balanceOrderId ? 'Saldo pendiente de reserva' : '2. Tipo de operacion';
+      const purchaseRadio = document.querySelector('input[name="purchaseType"][value="PURCHASE"]');
+      if (purchaseRadio) purchaseRadio.checked = true;
+      document.getElementById('modal-checkout').classList.remove('hidden');
+      updatePurchaseOption();
+    }
+
+    function closeCheckoutModal() {
+      document.getElementById('modal-checkout').classList.add('hidden');
+      pendingBalanceOrderId = null;
+    }
+
+    function togglePaymentFields() {
+      const selected = document.querySelector('input[name="paymentMethod"]:checked');
+      if (!selected) return;
+      const isCard = selected.value === 'CARD';
+      document.getElementById('payment-card-box').classList.toggle('hidden', !isCard);
+      document.getElementById('payment-transfer-box').classList.toggle('hidden', isCard);
+      const cardNumber = document.getElementById('checkout-card-number');
+      const voucher = document.getElementById('checkout-voucher-ref');
+      if (cardNumber) { cardNumber.disabled = !isCard; cardNumber.required = isCard; }
+      if (voucher) { voucher.disabled = isCard; voucher.required = !isCard; }
+    }
+
+    function formatCardNumber(input) {
+      const digits = input.value.replace(/\D/g, '').slice(0, 19);
+      input.value = digits.match(/.{1,4}/g)?.join(' ') || '';
+      input.setCustomValidity('');
+    }
+
+    function isValidCardNumber(value) {
+      const digits = value.replace(/\D/g, '');
+      if (digits.length < 13 || digits.length > 19 || /^([0-9])\1+$/.test(digits)) return false;
+      let sum = 0;
+      let doubleDigit = false;
+      for (let i = digits.length - 1; i >= 0; i--) {
+        let digit = Number(digits[i]);
+        if (doubleDigit) { digit *= 2; if (digit > 9) digit -= 9; }
+        sum += digit;
+        doubleDigit = !doubleDigit;
+      }
+      return sum % 10 === 0;
+    }
+
+    function getSelectedPurchaseType() { return document.querySelector('input[name="purchaseType"]:checked').value; }
+
+    function updatePurchaseOption() {
+      const summary = document.getElementById('purchase-amount-summary');
+      if (!summary) return;
+      if (pendingBalanceOrderId) {
+        const order = state.orders.find(item => item.id === pendingBalanceOrderId);
+        if (!order) return;
+        const balance = Math.max(Number(order.totalAmount) - Number(order.amount), 0);
+        summary.innerHTML = `Saldo pendiente: <strong>${formatPrice(balance)}</strong><span class="block text-[10px] text-slate-500 mt-1">Vehiculo: ${order.carName} | Referencia: ${order.id}</span>`;
+        togglePaymentFields();
+        return;
+      }
+      const car = state.vehicles.find(v => v.id === state.selectedCarId);
+      if (!car) return;
+      const reserve = getSelectedPurchaseType() === 'RESERVATION';
+      const due = reserve ? Math.ceil(car.price * 0.10) : car.price;
+      summary.innerHTML = `${reserve ? 'Abono de reserva (10%)' : 'Monto a pagar hoy'}: <strong>${formatPrice(due)}</strong><span class="block text-[10px] text-slate-500 mt-1">Precio total del vehiculo: ${formatPrice(car.price)}${reserve ? ' - El saldo se coordina con un representante.' : ''}</span>`;
+      togglePaymentFields();
+    }
+
+    let activePurchaseChatOrderId = null;
+    function addPurchaseChatMessage(text, from='representative') {
+      const messages = document.getElementById('purchase-chat-messages');
+      const bubble = document.createElement('div');
+      bubble.className = from === 'customer' ? 'ml-auto max-w-[85%] bg-blue-600 text-white rounded-2xl rounded-br-sm px-3 py-2 text-xs' : 'mr-auto max-w-[85%] bg-white border border-slate-200 text-slate-700 rounded-2xl rounded-bl-sm px-3 py-2 text-xs';
+      bubble.textContent = text;
+      messages.appendChild(bubble);
+      messages.scrollTop = messages.scrollHeight;
+    }
+    function openPurchaseChat(order) {
+      activePurchaseChatOrderId = order.id;
+      const messages = document.getElementById('purchase-chat-messages');
+      messages.innerHTML = '';
+      const isBalancePayment = order.paymentPurpose === 'RESERVATION_BALANCE';
+      const reserve = order.purchaseType === 'RESERVATION' && !isBalancePayment;
+      const amountToConfirm = isBalancePayment ? order.balanceDue : order.amount;
+      addPurchaseChatMessage(`Hola, ${order.buyerName}. Soy el asistente automatizado de AutoDrive RD. Revisemos tu ${isBalancePayment ? 'pago del saldo' : (reserve ? 'reserva' : 'compra')} de ${order.carName}.`);
+      addPurchaseChatMessage(`Total del vehiculo: ${formatPrice(order.totalAmount)}. ${isBalancePayment ? 'Saldo enviado hoy' : 'Monto enviado hoy'}: ${formatPrice(amountToConfirm)}. Referencia ${order.id}.`);
+      addPurchaseChatMessage('Confirma que el vehiculo y los datos de facturacion son correctos para registrar esta solicitud.');
+      document.getElementById('purchase-chat-actions').classList.remove('hidden');
+      document.getElementById('modal-purchase-chat').classList.remove('hidden');
+      lucide.createIcons();
+    }
+    function sendPurchaseChatMessage(e) {
+      e.preventDefault();
+      const input = document.getElementById('purchase-chat-input');
+      const question = input.value.trim();
+      if (!question) return;
+      addPurchaseChatMessage(question, 'customer'); input.value = '';
+      const order = state.orders.find(o => o.id === activePurchaseChatOrderId);
+      window.setTimeout(() => addPurchaseChatMessage(order && order.paymentPurpose === 'RESERVATION_BALANCE'
+        ? 'El saldo se abonara a tu reserva cuando se confirme el comprobante.'
+        : (order && order.purchaseType === 'RESERVATION'
+          ? 'La reserva simulada corresponde al 10%. El saldo y la entrega se coordinan con ventas.'
+          : 'Puedo validar los datos de tu solicitud simulada. Los pagos reales requieren una pasarela segura.')), 450);
+    }
+    function requestPurchaseChatHelp() {
+      addPurchaseChatMessage('Solicito ayuda de un representante.', 'customer');
+      addPurchaseChatMessage('Solicitud anotada en esta demostracion. Para recibir asistencia real, se debe conectar un canal de atencion.');
+    }
+    function confirmPurchaseWithRepresentative() {
+      const order = state.orders.find(o => o.id === activePurchaseChatOrderId);
+      if (!order) return;
+      const car = state.vehicles.find(v => v.id === order.carId);
+      const isBalancePayment = order.paymentPurpose === 'RESERVATION_BALANCE';
+      if (isBalancePayment && order.balancePaymentMethod === 'TRANSFER') {
+        order.status = 'PENDIENTE_VALIDACION';
+        if (car) car.status = 'Reservado';
+      } else if (isBalancePayment) {
+        order.status = 'APROBADO';
+        order.purchaseType = 'PURCHASE';
+        order.amount = order.totalAmount;
+        order.balanceDue = 0;
+        order.paymentPurpose = 'RESERVATION_BALANCE_PAID';
+        if (car) { car.status = 'Vendido'; car.ecfIssued = true; car.encf = order.encf; car.trackId = order.trackId; }
+      } else if (order.purchaseType === 'RESERVATION') {
+        order.status = order.paymentMethod === 'TRANSFER' ? 'PENDIENTE_VALIDACION' : 'RESERVA_CONFIRMADA';
+        if (car) car.status = 'Reservado';
+      } else if (order.paymentMethod === 'TRANSFER') {
+        order.status = 'PENDIENTE_VALIDACION'; if (car) car.status = 'Reservado';
+      } else {
+        order.status = 'APROBADO';
+        if (car) { car.status = 'Vendido'; car.ecfIssued = true; car.encf = order.encf; car.trackId = order.trackId; }
+      }
+      saveAppState();
+      const pending = order.status === 'PENDIENTE_VALIDACION';
+      addPurchaseChatMessage(pending ? 'Datos confirmados. Administracion debe revisar el comprobante antes de validar el pago.'
+        : (order.purchaseType === 'RESERVATION' ? 'Reserva registrada en esta demostracion. El equipo coordinar contigo los siguientes pasos.' : 'Datos confirmados. La compra de demostracion ha sido validada.'));
+      document.getElementById('purchase-chat-actions').classList.add('hidden');
+      window.setTimeout(() => { closePurchaseChat(); showPage('my-orders'); showToast(pending ? 'Solicitud enviada para validacion administrativa.' : 'Solicitud validada en la demostracion.'); }, 900);
+    }
+    function resumePurchaseChat(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (order) openPurchaseChat(order);
+    }
+    function closePurchaseChat() { document.getElementById('modal-purchase-chat').classList.add('hidden'); }
+
+    function payReservationBalance(orderId) {
+      const order = state.orders.find(item => item.id === orderId);
+      if (!order || order.status !== 'RESERVA_CONFIRMADA') return;
+      if (Number(order.amount) >= Number(order.totalAmount)) {
+        showToast('Esta compra no tiene saldo pendiente.');
+        return;
+      }
+      state.selectedCarId = order.carId;
+      openCheckoutModal(order.id);
+    }
+
+    function processCheckout(e) {
+      e.preventDefault();
+      const method = document.querySelector('input[name="paymentMethod"]:checked').value;
+      const cardNumber = document.getElementById('checkout-card-number');
+      if (method === 'CARD' && !isValidCardNumber(cardNumber.value)) {
+        cardNumber.setCustomValidity('Introduce de 13 a 19 digitos con un numero de tarjeta de prueba valido.');
+        cardNumber.reportValidity();
+        return;
+      }
+      const car = state.vehicles.find(v => v.id === state.selectedCarId);
+      if (!car) return;
+      const ecfType = document.getElementById('checkout-ecf-type').value;
+      const buyerName = document.getElementById('checkout-name').value.trim();
+      const buyerRnc = document.getElementById('checkout-rnc').value.trim();
+      const voucherRef = document.getElementById('checkout-voucher-ref').value.trim();
+      if (pendingBalanceOrderId) {
+        const order = state.orders.find(item => item.id === pendingBalanceOrderId);
+        if (!order || order.status !== 'RESERVA_CONFIRMADA') return;
+        const remaining = Math.max(Number(order.totalAmount) - Number(order.amount), 0);
+        if (!remaining) { showToast('Esta compra no tiene saldo pendiente.'); return; }
+        order.reservationAmount = order.reservationAmount || order.amount;
+        order.balanceDue = remaining;
+        order.balancePaymentMethod = method;
+        order.balanceVoucherRef = method === 'TRANSFER' ? voucherRef : null;
+        order.paymentPurpose = 'RESERVATION_BALANCE';
+        order.status = 'PENDIENTE_CONFIRMACION_REPRESENTANTE';
+        order.buyerName = buyerName;
+        order.buyerRnc = buyerRnc;
+        order.ecfType = ecfType;
+        pendingBalanceOrderId = null;
+        saveAppState();
+        closeCheckoutModal();
+        openPurchaseChat(order);
+        return;
+      }
+      const purchaseType = getSelectedPurchaseType();
+      const totalAmount = car.price;
+      const amount = purchaseType === 'RESERVATION' ? Math.ceil(totalAmount * 0.10) : totalAmount;
+      const encfNumber = `${ecfType}${Math.floor(100000000 + Math.random() * 900000000)}`;
+      const trackId = `TRK-DGII-${Math.floor(10000 + Math.random() * 90000)}-RD`;
+      const order = { id: `ORD-${Math.floor(1000 + Math.random() * 9000)}`, carId: car.id, carName: `${car.make} ${car.model}`, vin: car.vin, amount, totalAmount, purchaseType, buyerName, buyerRnc, ecfType, paymentMethod: method, voucherRef: method === 'TRANSFER' ? voucherRef : null, status: 'PENDIENTE_CONFIRMACION_REPRESENTANTE', encf: encfNumber, trackId, date: new Date().toLocaleDateString('es-DO') };
+      state.orders.unshift(order);
+      car.status = 'Reservado';
+      state.cart = state.cart.filter(item => item.id !== car.id);
+      saveAppState(); closeCheckoutModal(); openPurchaseChat(order);
+    }
+
+    // GALLERY MODAL LOGIC
+    let currentGalleryImages = [];
+    let currentGalleryIndex = 0;
+
+    function renderGalleryVehicleInfo(car) {
+      const features = document.getElementById('gallery-vehicle-features');
+      const specs = document.getElementById('gallery-vehicle-specs');
+      features.innerHTML = '';
+      specs.innerHTML = '';
+      const featureList = car.features && car.features.length ? car.features : ['Consulta el equipamiento de esta unidad con el representante.'];
+      featureList.forEach(feature => {
+        const item = document.createElement('li');
+        item.className = 'flex items-start gap-2';
+        const icon = document.createElement('span');
+        icon.className = 'text-emerald-500 font-bold';
+        icon.textContent = '✓';
+        const label = document.createElement('span');
+        label.textContent = feature;
+        item.append(icon, label);
+        features.appendChild(item);
+      });
+      const seats = Number.isFinite(Number(car.seats)) ? Number(car.seats) : 5;
+      const passengerCapacity = Number.isFinite(Number(car.passengerCapacity)) ? Number(car.passengerCapacity) : Math.max(seats - 1, 0);
+      const defaultSpecs = [['Ano', car.year], ['Kilometraje', `${Number(car.km || 0).toLocaleString()} km`], ['Combustible', car.fuel || 'No especificado'], ['Transmision', car.trans || 'No especificada'], ['Asientos totales', `${seats} (incluye conductor)`], ['Capacidad de pasajeros', `${passengerCapacity} (sin conductor)`], ['Condicion', car.condition || 'No especificada']];
+      const specList = [...defaultSpecs, ...(car.specifications || [])];
+      specList.forEach(([label, value]) => {
+        const wrapper = document.createElement('div');
+        wrapper.className = 'bg-slate-50 border border-slate-100 rounded-lg p-2';
+        const term = document.createElement('dt');
+        term.className = 'text-slate-400 font-semibold';
+        term.textContent = label;
+        const detail = document.createElement('dd');
+        detail.className = 'text-slate-800 font-bold mt-0.5';
+        detail.textContent = value;
+        wrapper.append(term, detail);
+        specs.appendChild(wrapper);
+      });
+    }
+
+    function openGalleryModal(id) {
+      const car = state.vehicles.find(v => v.id === id);
+      if (!car) return;
+
+      renderGalleryVehicleInfo(car);
+      currentGalleryImages = (car.gallery && car.gallery.length > 0) ? car.gallery : [car.image];
+      currentGalleryIndex = 0;
+      const hasMultiplePhotos = currentGalleryImages.length > 1;
+      document.getElementById('gallery-prev').classList.toggle('hidden', !hasMultiplePhotos);
+      document.getElementById('gallery-next').classList.toggle('hidden', !hasMultiplePhotos);
+
+      document.getElementById('gallery-modal-car-title').innerText = `${car.make} ${car.model} (${car.year})`;
+      updateGalleryDisplay();
+      document.getElementById('modal-gallery').classList.remove('hidden');
+    }
+
+    function closeGalleryModal() {
+      document.getElementById('modal-gallery').classList.add('hidden');
+    }
+
+    function changeGalleryImage(direction) {
+      currentGalleryIndex += direction;
+      if (currentGalleryIndex < 0) currentGalleryIndex = currentGalleryImages.length - 1;
+      if (currentGalleryIndex >= currentGalleryImages.length) currentGalleryIndex = 0;
+      updateGalleryDisplay();
+    }
+
+    function setGalleryImage(index) {
+      currentGalleryIndex = index;
+      updateGalleryDisplay();
+    }
+
+    function updateGalleryDisplay() {
+      const mainImg = document.getElementById('gallery-main-image');
+      const counter = document.getElementById('gallery-counter');
+      const thumbsContainer = document.getElementById('gallery-thumbnails');
+
+      mainImg.src = currentGalleryImages[currentGalleryIndex];
+      counter.innerText = `${currentGalleryIndex + 1} / ${currentGalleryImages.length}`;
+
+      thumbsContainer.innerHTML = '';
+      currentGalleryImages.forEach((url, i) => {
+        const thumb = document.createElement('img');
+        thumb.src = url;
+        thumb.className = `w-16 h-12 object-cover rounded-xl border-2 cursor-pointer transition flex-shrink-0 ${i === currentGalleryIndex ? 'border-blue-500 scale-105 opacity-100' : 'border-transparent opacity-60 hover:opacity-100'}`;
+        thumb.onclick = () => setGalleryImage(i);
+        thumbsContainer.appendChild(thumb);
+      });
+    }
+
+    // CLIENT ORDERS RENDERING
+    function renderOrders() {
+      const container = document.getElementById('orders-list-container');
+      if (!container) return;
+
+      container.innerHTML = '';
+
+      if (state.orders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-8 text-slate-400 text-xs">
+            <i data-lucide="shopping-bag" class="w-8 h-8 mx-auto mb-2 opacity-50"></i>
+            No tienes compras registradas aún.
+          </div>`;
+        return;
+      }
+
+      state.orders.forEach(o => {
+        const item = document.createElement('div');
+        item.className = "bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs";
+        
+        let statusBadge = o.status === 'APROBADO'
+          ? `<span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">APROBADO / e-CF EMITIDO</span>`
+          : o.status === 'PENDIENTE_CONFIRMACION_REPRESENTANTE'
+            ? `<span class="bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PENDIENTE DE CONFIRMACION</span>`
+          : o.status === 'RESERVA_CONFIRMADA'
+            ? `<span class="bg-blue-100 text-blue-800 font-bold px-2.5 py-1 rounded-full text-[10px]">RESERVA CONFIRMADA</span>`
+            : `<span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full text-[10px]">PENDIENTE VALIDACION</span>`;
+
+        item.innerHTML = `
+          <div>
+            <div class="flex items-center space-x-2">
+              <span class="font-bold text-slate-900">${o.carName}</span>
+              ${statusBadge}
+            </div>
+            <p class="text-slate-500 text-[11px] mt-1">VIN: ${o.vin} | Fecha: ${o.date}</p>
+            <p class="text-slate-500 text-[11px]">${o.purchaseType === 'RESERVATION' ? 'Reserva' : 'Compra completa'} | Pago: ${o.paymentMethod === 'CARD' ? 'Tarjeta' : 'Transferencia'}${o.balancePaymentMethod ? ` (saldo: ${o.balancePaymentMethod === 'CARD' ? 'Tarjeta' : 'Transferencia'})` : ''}</p>
+            <p class="text-slate-500 text-[11px]">Pagado hoy: <strong class="text-slate-800">${formatPrice(o.amount)}</strong>${o.totalAmount && o.totalAmount !== o.amount ? ` | Total vehiculo: ${formatPrice(o.totalAmount)}` : ''}</p>
+            ${o.paymentPurpose === 'RESERVATION_BALANCE' || o.status === 'RESERVA_CONFIRMADA' ? `<p class="text-blue-700 text-[11px] font-semibold">Saldo pendiente: ${formatPrice(o.balanceDue ?? (o.totalAmount - o.amount))}${o.balancePaymentMethod ? ` | Pago del saldo: ${o.balancePaymentMethod === 'CARD' ? 'Tarjeta' : 'Transferencia'}` : ''}</p>` : ''}
+          </div>
+          <div>
+            ${o.status === 'APROBADO' ? `
+              <button onclick="viewEcfInvoice('${o.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl flex items-center space-x-1">
+                <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+                <span>Ver Factura e-CF DGII</span>
+              </button>
+            ` : o.status === 'PENDIENTE_CONFIRMACION_REPRESENTANTE' ? `<button onclick="resumePurchaseChat('${o.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl">Continuar validacion</button>` : o.status === 'RESERVA_CONFIRMADA' ? `<button onclick="payReservationBalance('${o.id}')" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-1.5 rounded-xl">Pagar saldo pendiente</button>` : `<span class="text-slate-400 italic">Pendiente de validacion administrativa</span>`}
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // ADMIN TABS & DASHBOARD
+    function switchAdminTab(tab) {
+      document.getElementById('admin-tab-inventory').classList.add('hidden');
+      document.getElementById('admin-tab-vouchers').classList.add('hidden');
+      document.getElementById('admin-tab-ecf').classList.add('hidden');
+
+      document.getElementById('tab-btn-inventory').className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800";
+      document.getElementById('tab-btn-vouchers').className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-1.5";
+      document.getElementById('tab-btn-ecf').className = "pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800";
+
+      document.getElementById(`admin-tab-${tab}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`tab-btn-${tab}`);
+      activeBtn.className = "pb-3 border-b-2 border-blue-600 text-blue-600 font-bold flex items-center space-x-1.5";
+    }
+
+    function renderAdminTable() {
+      const table = document.getElementById('admin-inventory-table');
+      if (!table) return;
+
+      table.innerHTML = '';
+      state.vehicles.forEach(v => {
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-50";
+        row.innerHTML = `
+          <td class="py-3 px-4 font-semibold">${v.make} ${v.model} (${v.year})</td>
+          <td class="py-3 px-4 font-mono text-[11px] text-slate-500">${v.vin}</td>
+          <td class="py-3 px-4 font-bold text-blue-600">${formatPrice(v.price)}</td>
+          <td class="py-3 px-4"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${v.status === 'Disponible' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${v.status}</span></td>
+          <td class="py-3 px-4">${v.ecfIssued ? `<span class="text-emerald-600 font-bold font-mono">${v.encf}</span>` : `<span class="text-slate-400">Sin Emitir</span>`}</td>
+          <td class="py-3 px-4 text-right space-x-2">
+            <button onclick="openVehicleModal('${v.id}')" class="text-blue-600 hover:underline">Editar</button>
+            <button onclick="deleteVehicle('${v.id}')" class="text-red-600 hover:underline">Eliminar</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    function renderAdminVouchers() {
+      const list = document.getElementById('admin-vouchers-list');
+      const badge = document.getElementById('admin-pending-badge');
+      if (!list) return;
+
+      list.innerHTML = '';
+      const pending = state.orders.filter(o => o.status === 'PENDIENTE_VALIDACION');
+      if (badge) badge.innerText = pending.length;
+
+      if (pending.length === 0) {
+        list.innerHTML = '<p class="text-xs text-slate-400 py-4">No hay vouchers de transferencia pendientes.</p>';
+        return;
+      }
+
+      pending.forEach(o => {
+        const card = document.createElement('div');
+        card.className = "p-4 bg-slate-50 border border-slate-200 rounded-xl flex justify-between items-center text-xs";
+        card.innerHTML = `
+          <div>
+            <span class="font-bold text-slate-900">${o.carName}</span> - ${formatPrice(o.paymentPurpose === 'RESERVATION_BALANCE' ? o.balanceDue : o.amount)}
+            <p class="text-slate-500 text-[11px]">Cliente: ${o.buyerName} | RNC: ${o.buyerRnc}</p>
+            <p class="text-slate-500 text-[11px]">Ref Voucher: <strong class="text-amber-700 font-mono">${o.balanceVoucherRef || o.voucherRef || 'N/A'}</strong></p>
+          </div>
+          <button onclick="approveVoucher('${o.id}')" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1.5 rounded-xl">
+            Validar comprobante
+          </button>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function approveVoucher(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+      const isBalancePayment = order.paymentPurpose === 'RESERVATION_BALANCE';
+      const isReservation = order.purchaseType === 'RESERVATION' && !isBalancePayment;
+      order.status = isReservation ? 'RESERVA_CONFIRMADA' : 'APROBADO';
+      if (isBalancePayment) {
+        order.purchaseType = 'PURCHASE';
+        order.amount = order.totalAmount;
+        order.balanceDue = 0;
+        order.paymentPurpose = 'RESERVATION_BALANCE_PAID';
+      }
+      const vIndex = state.vehicles.findIndex(v => v.id === order.carId);
+      if (vIndex !== -1) {
+        state.vehicles[vIndex].status = isReservation ? 'Reservado' : 'Vendido';
+        if (!isReservation) {
+          state.vehicles[vIndex].ecfIssued = true;
+          state.vehicles[vIndex].encf = order.encf;
+          state.vehicles[vIndex].trackId = order.trackId;
+        }
+      }
+      saveAppState();
+      showToast(isReservation ? 'Comprobante de reserva validado.' : 'Comprobante aprobado y e-CF de demostracion generado.');
+    }
+
+    function renderAdminEcf() {
+      const table = document.getElementById('admin-ecf-table');
+      if (!table) return;
+
+      table.innerHTML = '';
+      const approved = state.orders.filter(o => o.status === 'APROBADO');
+
+      approved.forEach(o => {
+        const row = document.createElement('tr');
+        row.className = "hover:bg-slate-50";
+        row.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-blue-600">${o.encf}</td>
+          <td class="py-3 px-4 font-bold">${o.ecfType === 'E31' ? 'E31 Crédito Fiscal' : 'E32 Consumo'}</td>
+          <td class="py-3 px-4 font-mono text-slate-600">${o.buyerRnc}</td>
+          <td class="py-3 px-4 font-bold">${formatPrice(o.amount)}</td>
+          <td class="py-3 px-4 font-mono text-[10px] text-slate-500">${o.trackId}</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="viewEcfInvoice('${o.id}')" class="bg-slate-900 text-white text-[11px] font-bold px-2.5 py-1 rounded-lg">Ver e-CF</button>
+          </td>
+        `;
+        table.appendChild(row);
+      });
+    }
+
+    // GENERATE DGII QR CODE SVG
+    function generateDgiiQrSvg(encf, rnc, amount, trackId) {
+      return `
+        <svg xmlns="http://www.w3.org/2000/svg" width="90" height="90" viewBox="0 0 100 100" class="border border-slate-300 rounded p-1 bg-white">
+          <path d="M0,0 h30 v30 h-30 z M5,5 v20 h20 v-20 z M10,10 h10 v10 h-10 z" fill="#000"/>
+          <path d="M70,0 h30 v30 h-30 z M75,5 v20 h20 v-20 z M80,10 h10 v10 h-10 z" fill="#000"/>
+          <path d="M0,70 h30 v30 h-30 z M5,75 v20 h20 v-20 z M10,80 h10 v10 h-10 z" fill="#000"/>
+          <rect x="35" y="5" width="8" height="8" fill="#000"/>
+          <rect x="48" y="5" width="15" height="8" fill="#000"/>
+          <rect x="35" y="18" width="15" height="10" fill="#000"/>
+          <rect x="55" y="18" width="8" height="15" fill="#000"/>
+          <rect x="5" y="35" width="10" height="15" fill="#000"/>
+          <rect x="20" y="35" width="20" height="8" fill="#000"/>
+          <rect x="45" y="35" width="10" height="20" fill="#000"/>
+          <rect x="60" y="35" width="25" height="8" fill="#000"/>
+          <rect x="20" y="48" width="10" height="15" fill="#000"/>
+          <rect x="35" y="60" width="18" height="10" fill="#000"/>
+          <rect x="75" y="48" width="18" height="18" fill="#000"/>
+          <rect x="58" y="70" width="12" height="22" fill="#000"/>
+          <rect x="75" y="75" width="20" height="10" fill="#000"/>
+        </svg>
+      `;
+    }
+
+    function viewEcfInvoice(orderId) {
+      const order = state.orders.find(o => o.id === orderId);
+      if (!order) return;
+
+      const subtotal = order.amount / 1.18;
+      const itbis = order.amount - subtotal;
+
+      const qrSvg = generateDgiiQrSvg(order.encf, order.buyerRnc, order.amount, order.trackId);
+
+      const body = document.getElementById('ecf-print-body');
+      body.innerHTML = `
+        <div class="text-center border-b border-slate-200 pb-3">
+          <h2 class="font-extrabold text-sm uppercase">AUTODRIVE RD, SRL</h2>
+          <p class="text-[10px] text-slate-500">RNC: 1-32-45678-9 | Registro Mercantil: 99201</p>
+          <p class="text-[10px] text-slate-500">Av. Abraham Lincoln #101, Santo Domingo, RD</p>
+        </div>
+
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1 text-[11px]">
+          <div class="flex justify-between"><span>e-NCF:</span> <strong class="text-blue-600">${order.encf}</strong></div>
+          <div class="flex justify-between"><span>Tipo Comprobante:</span> <strong>${order.ecfType === 'E31' ? 'Factura de Crédito Fiscal Electrónica' : 'Factura de Consumo Electrónica'}</strong></div>
+          <div class="flex justify-between"><span>TrackID DGII:</span> <span class="font-mono text-[10px]">${order.trackId}</span></div>
+          <div class="flex justify-between"><span>Fecha Emisión:</span> <span>${order.date}</span></div>
+        </div>
+
+        <div class="border-y border-slate-200 py-2 space-y-1 text-[11px]">
+          <div><strong>Cliente / Comprador:</strong> ${order.buyerName}</div>
+          <div><strong>RNC / Cédula:</strong> ${order.buyerRnc}</div>
+        </div>
+
+        <table class="w-full text-left my-2 text-[11px]">
+          <thead class="border-b border-slate-300">
+            <tr><th>Descripción</th><th class="text-right">Monto (${currentCurrency})</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="py-1">${order.carName} (VIN: ${order.vin})</td>
+              <td class="text-right">${formatPrice(subtotal)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="border-t border-slate-200 pt-2 text-right space-y-1 text-[11px]">
+          <div>Subtotal: ${formatPrice(subtotal)}</div>
+          <div>ITBIS (18%): ${formatPrice(itbis)}</div>
+          <div class="font-extrabold text-sm text-slate-900">TOTAL: ${formatPrice(order.amount)}</div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-3 flex items-center justify-between">
+          <div class="text-[9px] text-slate-500 space-y-0.5">
+            <p><strong>Firma Digital:</strong> Verificada DGII (Norma 01-2020)</p>
+            <p><strong>Cod. Seguridad:</strong> ${order.trackId.substring(0, 16)}</p>
+            <p class="font-bold text-slate-700">Representación Impresa de Comprobante Fiscal Electrónico (e-CF)</p>
+          </div>
+          <div>
+            ${qrSvg}
+          </div>
+        </div>
+      `;
+
+      document.getElementById('modal-ecf-view').classList.remove('hidden');
+    }
+
+    function closeEcfViewModal() {
+      document.getElementById('modal-ecf-view').classList.add('hidden');
+    }
+
+    function openVehicleModal(id = null) {
+      document.getElementById('modal-admin-car').classList.remove('hidden');
+      if (id) {
+        const v = state.vehicles.find(item => item.id === id);
+        document.getElementById('admin-car-id').value = v.id;
+        document.getElementById('admin-make').value = v.make;
+        document.getElementById('admin-model').value = v.model;
+        document.getElementById('admin-year').value = v.year;
+        document.getElementById('admin-price').value = v.price;
+        document.getElementById('admin-km').value = v.km;
+        document.getElementById('admin-seats').value = Number.isFinite(Number(v.seats)) ? v.seats : 5;
+        document.getElementById('admin-passenger-capacity').value = Number.isFinite(Number(v.passengerCapacity)) ? v.passengerCapacity : Math.max(Number(v.seats || 5) - 1, 0);
+        document.getElementById('admin-vin').value = v.vin;
+        document.getElementById('admin-condition').value = v.condition;
+        document.getElementById('admin-fuel').value = v.fuel;
+        document.getElementById('admin-status').value = v.status;
+        document.getElementById('admin-image').value = v.image;
+        document.getElementById('admin-gallery-urls').value = (v.gallery || []).join('\n');
+        document.getElementById('admin-features').value = (v.features || []).join('\n');
+        document.getElementById('admin-specifications').value = (v.specifications || []).map(([label, value]) => `${label}: ${value}`).join('\n');
+      } else {
+        document.getElementById('admin-car-form').reset();
+        document.getElementById('admin-car-id').value = '';
+      }
+    }
+
+    function closeVehicleModal() {
+      document.getElementById('modal-admin-car').classList.add('hidden');
+    }
+
+    function saveAdminVehicle(e) {
+      e.preventDefault();
+      const id = document.getElementById('admin-car-id').value;
+      const mainImg = document.getElementById('admin-image').value || 'https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=600&q=80';
+
+      const galleryRaw = document.getElementById('admin-gallery-urls').value;
+      const galleryParsed = galleryRaw.split('\n').map(url => url.trim()).filter(url => url.length > 0);
+      const featuresParsed = document.getElementById('admin-features').value.split('\n').map(item => item.trim()).filter(Boolean);
+      const specificationsParsed = document.getElementById('admin-specifications').value.split('\n').map(line => {
+        const separator = line.indexOf(':');
+        if (separator < 1) return null;
+        const label = line.slice(0, separator).trim();
+        const value = line.slice(separator + 1).trim();
+        return label && value ? [label, value] : null;
+      }).filter(Boolean);
+      if (galleryParsed.length === 0) {
+        galleryParsed.push(mainImg);
+      }
+
+      const data = {
+        id: id || `AUT-${Math.floor(100 + Math.random() * 900)}`,
+        make: document.getElementById('admin-make').value,
+        model: document.getElementById('admin-model').value,
+        year: parseInt(document.getElementById('admin-year').value),
+        price: parseFloat(document.getElementById('admin-price').value),
+        km: parseInt(document.getElementById('admin-km').value),
+        seats: parseInt(document.getElementById('admin-seats').value),
+        passengerCapacity: parseInt(document.getElementById('admin-passenger-capacity').value),
+        vin: document.getElementById('admin-vin').value.toUpperCase(),
+        condition: document.getElementById('admin-condition').value,
+        fuel: document.getElementById('admin-fuel').value,
+        trans: 'Automática',
+        status: document.getElementById('admin-status').value,
+        image: mainImg,
+        gallery: galleryParsed,
+        features: featuresParsed,
+        specifications: specificationsParsed,
+        ecfIssued: false,
+        encf: null,
+        trackId: null
+      };
+
+      if (id) {
+        const index = state.vehicles.findIndex(v => v.id === id);
+        state.vehicles[index] = { ...state.vehicles[index], ...data };
+      } else {
+        state.vehicles.push(data);
+      }
+
+      saveAppState();
+      closeVehicleModal();
+      showToast('Vehículo y galería guardados exitosamente');
+    }
+
+    function deleteVehicle(id) {
+      if (!confirm('¿Estás seguro de eliminar este vehículo?')) return;
+      state.vehicles = state.vehicles.filter(v => v.id !== id);
+      saveAppState();
+      showToast('Vehículo eliminado del inventario');
+    }
+
+    // WORKSHOP APPOINTMENTS (local demo storage; not a live booking system)
+    function submitWorkshopAppointment(event) {
+      event.preventDefault();
+      const appointment = {
+        id: 'TAL-' + Date.now().toString().slice(-7),
+        name: document.getElementById('workshop-name').value.trim(),
+        phone: document.getElementById('workshop-phone').value.trim(),
+        email: document.getElementById('workshop-email').value.trim(),
+        vehicle: document.getElementById('workshop-vehicle').value.trim(),
+        service: document.getElementById('workshop-service').value,
+        date: document.getElementById('workshop-date').value,
+        time: document.getElementById('workshop-time').value,
+        mileage: document.getElementById('workshop-mileage').value,
+        notes: document.getElementById('workshop-notes').value.trim(),
+        status: 'Pendiente de confirmación',
+        createdAt: new Date().toISOString()
+      };
+      const appointments = JSON.parse(localStorage.getItem('autodrive_workshop_appointments') || '[]');
+      appointments.unshift(appointment);
+      localStorage.setItem('autodrive_workshop_appointments', JSON.stringify(appointments));
+      const confirmation = document.getElementById('workshop-confirmation');
+      confirmation.classList.remove('hidden');
+      confirmation.innerHTML = `<h3 class="font-bold text-emerald-900">Solicitud guardada</h3><p class="text-sm text-emerald-800 mt-1">Referencia: <strong>${escapeWorkshopText(appointment.id)}</strong></p><p class="text-sm text-emerald-800 mt-1">${escapeWorkshopText(appointment.service)} · ${escapeWorkshopText(appointment.date)} · ${escapeWorkshopText(appointment.time)}</p><p class="text-xs text-emerald-700 mt-2">Estado: pendiente de confirmación por el taller.</p>`;
+      document.getElementById('workshop-form').reset();
+      renderWorkshopAppointments();
+      lucide.createIcons();
+      confirmation.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function escapeWorkshopText(value) {
+      return String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+    }
+
+    function renderWorkshopAppointments() {
+      const container = document.getElementById('workshop-appointments-list');
+      if (!container) return;
+      const appointments = JSON.parse(localStorage.getItem('autodrive_workshop_appointments') || '[]');
+      if (!appointments.length) {
+        container.innerHTML = '<p class="text-slate-400 text-xs">Aún no hay solicitudes guardadas.</p>';
+        return;
+      }
+      container.innerHTML = appointments.slice(0, 5).map(a => `<div class="border border-slate-100 rounded-xl p-3"><div class="flex justify-between gap-2"><strong class="text-slate-800">${escapeWorkshopText(a.service)}</strong><span class="text-[10px] text-amber-700 bg-amber-50 rounded-full px-2 py-1 h-fit">Pendiente</span></div><p class="text-xs mt-1">${escapeWorkshopText(a.vehicle)}</p><p class="text-xs text-slate-500 mt-1">${escapeWorkshopText(a.date)} · ${escapeWorkshopText(a.time)}</p><p class="text-[10px] text-slate-400 mt-1">Ref. ${escapeWorkshopText(a.id)}</p></div>`).join('');
+    }
+
+    // Prevent selection of past dates in the workshop form.
+    (function setWorkshopMinDate() {
+      const dateInput = document.getElementById('workshop-date');
+      if (dateInput) dateInput.min = new Date().toISOString().slice(0, 10);
+    })();
+
+    // TOAST NOTIFICATIONS
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = message;
+      toast.classList.remove('translate-y-10', 'opacity-0');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-10', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
